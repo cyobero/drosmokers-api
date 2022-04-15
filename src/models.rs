@@ -23,8 +23,10 @@ pub struct NewStrain {
 pub struct Strain {
     #[sql_type = "Integer"]
     pub id: i32,
+
     #[sql_type = "VarChar"]
     pub name: String,
+
     #[sql_type = "SpeciesMapping"]
     pub species: Species,
 }
