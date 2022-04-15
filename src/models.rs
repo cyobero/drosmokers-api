@@ -5,6 +5,8 @@ use diesel::{QueryDsl, Queryable, QueryableByName, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 
+use std::fmt;
+
 #[derive(Debug, DbEnum, Deserialize, Serialize, PartialEq)]
 pub enum Species {
     Indica,
@@ -29,4 +31,14 @@ pub struct Strain {
 
     #[sql_type = "SpeciesMapping"]
     pub species: Species,
+}
+
+impl fmt::Display for Species {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Species::Indica => write!(f, "indica"),
+            Species::Sativa => write!(f, "sativa"),
+            Species::Hybrid => write!(f, "hybrid"),
+        }
+    }
 }

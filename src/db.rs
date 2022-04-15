@@ -9,6 +9,7 @@ use diesel::{
 };
 use dotenv::dotenv;
 use std::env;
+use std::fmt;
 
 pub struct StrainParams<'a> {
     pub id: Option<i32>,
@@ -16,6 +17,7 @@ pub struct StrainParams<'a> {
     pub species: Option<Species>,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub enum StrainField<I = i32, N = String, S = Species> {
     Id(I),
     Name(N),
