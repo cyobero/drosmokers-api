@@ -22,7 +22,7 @@ pub struct NewStrain {
 #[derive(Debug, Deserialize, Serialize, QueryableByName, Queryable)]
 pub struct Strain {
     #[sql_type = "Integer"]
-    id: i32,
+    pub id: i32,
     #[sql_type = "VarChar"]
     pub name: String,
     #[sql_type = "SpeciesMapping"]

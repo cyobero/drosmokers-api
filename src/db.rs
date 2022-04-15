@@ -15,6 +15,15 @@ pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
 }
 
 /// Trait for creating new objects
+/// Example:
+/// let conn = establish_connection().unwrap();
+/// let new = NewStrain {
+///         name: "Gaylord OG".to_owned(),
+///         species: Species::Indica,
+/// };
+/// let strain = new.create(&conn);
+/// assert!(strain.is_ok());
+/// assert_eq!(strain.unwrap().species, Species::Indica);
 pub trait Creatable<C = PgConnection, E = Error>
 where
     C: Connection,
@@ -24,6 +33,22 @@ where
     fn create(&self, conn: &C) -> Result<Self::Obj, E>;
 }
 
+/// Trait for deleting objects
+/// Example:
+///     let conn = establish_connection().unwrap();
+///     let new = NewStrain {
+///         name: "Reggie Kush".to_owned(),
+///         species: Species::Indica,
+///     };
+///     let strain = new.create(&conn).unwrap();
+///     assert!(strain.delete(&conn).is_ok());
+///     let fails = strains.find(strain.id).get_result::<Strain>(&conn);
+///     assert!(fails.is_err());
+pub trait Deletable<C = PgConnection, E = Error> {
+    type Obj;
+    fn delete(&self, conn: &C) -> Result<Self::Obj, E>;
+}
+
 impl Creatable for NewStrain {
     type Obj = Strain;
     fn create(&self, conn: &PgConnection) -> Result<Strain, Error> {
@@ -31,9 +56,16 @@ impl Creatable for NewStrain {
     }
 }
 
+impl Deletable for Strain {
+    type Obj = Strain;
+    fn delete(&self, conn: &PgConnection) -> Result<Strain, Error> {
+        diesel::delete(strains.find(&self.id)).get_result(conn)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{establish_connection, Creatable};
+    use super::*;
     use crate::models::{NewStrain, Species};
 
     #[test]
@@ -53,5 +85,18 @@ mod tests {
 
         assert!(strain.is_ok());
         assert_eq!(strain.unwrap().species, Species::Indica);
+    }
+
+    #[test]
+    fn strain_deleted() {
+        let conn = establish_connection().unwrap();
+        let new = NewStrain {
+            name: "Reggie Kush".to_owned(),
+            species: Species::Indica,
+        };
+        let strain = new.create(&conn).unwrap();
+        assert!(strain.delete(&conn).is_ok());
+        let fails = strains.find(strain.id).get_result::<Strain>(&conn);
+        assert!(fails.is_err());
     }
 }
