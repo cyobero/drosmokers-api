@@ -8,6 +8,9 @@ use dotenv::dotenv;
 use std::env;
 
 /// A Utility function to establish DB connection
+/// Example:
+/// let conn = establish_connection();
+/// assert!(conn.is_ok());
 pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
@@ -18,8 +21,8 @@ pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
 /// Example:
 /// let conn = establish_connection().unwrap();
 /// let new = NewStrain {
-///         name: "Gaylord OG".to_owned(),
-///         species: Species::Indica,
+///     name: "Gaylord OG".to_owned(),
+///     species: Species::Indica,
 /// };
 /// let strain = new.create(&conn);
 /// assert!(strain.is_ok());
