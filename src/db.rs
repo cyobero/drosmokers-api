@@ -109,7 +109,6 @@ impl Deletable for Strain {
 impl Retrievable<'_> for Strain {
     type Field = StrainField;
     type Output = Strain;
-    /// Retrieves all objects
     fn all(conn: &PgConnection) -> Result<Vec<Strain>, Error> {
         strains.load(conn)
     }
