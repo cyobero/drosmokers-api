@@ -87,7 +87,10 @@ mod tests {
         let strain = new.create(&conn);
 
         assert!(strain.is_ok());
-        assert_eq!(strain.unwrap().species, Species::Indica);
+        assert_eq!(strain.as_ref().unwrap().species, Species::Indica);
+        diesel::delete(strains.find(strain.as_ref().unwrap().id))
+            .get_result::<Strain>(&conn)
+            .unwrap();
     }
 
     #[test]
