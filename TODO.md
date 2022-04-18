@@ -1,4 +1,4 @@
 # TODO
 
-- Create batches table
+- ~~Create batches table~~ (2022-04-18)
 - ~~Resolve issue with filter by name~~ (2022-04-18)
