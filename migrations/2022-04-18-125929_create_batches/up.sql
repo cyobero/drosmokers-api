@@ -1,7 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE growers (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE batches (
