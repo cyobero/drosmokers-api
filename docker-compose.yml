@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5444:5444'
+
+  web:
+    build: .
+    command: 'diesel setup && cargo watch -x run'
+    depends_on: 
+      - db
+    ports:
+      - '8008:8008'
