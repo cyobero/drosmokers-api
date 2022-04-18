@@ -40,6 +40,7 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .service(get_strains_handler)
             .service(post_new_strain)
+            .service(get_strain_id)
     })
     .bind(socket)?
     .run()
