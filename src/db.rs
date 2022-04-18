@@ -3,7 +3,7 @@ use super::schema::strains::dsl::{self, id as sid, name, species, strains};
 
 use diesel::pg::PgConnection;
 use diesel::result::Error;
-use diesel::sql_types::{Integer, VarChar};
+use diesel::sql_types::{Integer, Varchar};
 use diesel::{
     sql_query, Connection, ConnectionError, ExpressionMethods, QueryDsl, Queryable, RunQueryDsl,
 };
@@ -12,9 +12,9 @@ use std::env;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
-pub enum StrainField<I = i32, N = String, S = Species> {
+pub enum StrainField<'a, I = i32, N = &'a str, S = Species> {
     Id(I),
-    Name(N),
+    Name(&'a N),
     Species(S),
 }
 
@@ -66,7 +66,7 @@ pub trait Deletable<C = PgConnection, E = Error> {
 }
 
 /// Trait for retrieving objects
-pub trait Retrievable<'a, C = PgConnection, E = Error> {
+pub trait Retrievable<'a, 'n, C = PgConnection, E = Error> {
     type Field;
     type Output;
 
@@ -106,8 +106,8 @@ impl Deletable for Strain {
     }
 }
 
-impl Retrievable<'_> for Strain {
-    type Field = StrainField;
+impl<'a> Retrievable<'_, 'a> for Strain {
+    type Field = StrainField<'a>;
     type Output = Strain;
     fn all(conn: &PgConnection) -> Result<Vec<Strain>, Error> {
         strains.load(conn)
@@ -116,8 +116,8 @@ impl Retrievable<'_> for Strain {
     fn filter(conn: &PgConnection, field: StrainField) -> Result<Vec<Strain>, Error> {
         match field {
             StrainField::Id(i) => strains.filter(sid.eq(i)).get_results(conn),
-            StrainField::Name(n) => sql_query("SELECT * FROM strains WHERE name ILIKE '%?%' ")
-                .bind::<VarChar, _>(&n)
+            StrainField::Name(n) => sql_query("SELECT * FROM strains WHERE name ILIKE '%?' ")
+                .bind::<Varchar, _>(&n)
                 .get_results(conn),
             StrainField::Species(s) => strains.filter(species.eq(s)).get_results(conn),
         }
@@ -172,16 +172,28 @@ mod tests {
     }
 
     #[test]
-    fn strain_filtered() {
+    fn strain_filtered_by_id() {
         use super::StrainField;
         use crate::models::{Species, Species::*};
         let conn = establish_connection().unwrap();
         let filtered_by_id = Strain::filter(&conn, StrainField::Id(3)).unwrap();
-        //        let filtered_by_name =
-        //            Strain::filter(&conn, StrainField::Name("Gaylord OG".to_owned())).unwrap();
         let indicas = Strain::filter(&conn, StrainField::Species(Indica)).unwrap();
         assert_eq!(filtered_by_id[0].id, 3);
         assert_eq!(indicas[2].species, Species::Indica);
-        //assert_eq!(filtered_by_name[0].name, "Gaylord OG");
+    }
+
+    #[test]
+    fn strain_filtered_by_species() {
+        use super::StrainField;
+        use crate::models::{Species, Species::*};
+        let conn = establish_connection().unwrap();
+        let indicas = Strain::filter(&conn, StrainField::Species(Indica)).unwrap();
+        assert_eq!(indicas[2].species, Species::Indica);
+    }
+
+    #[test]
+    fn strain_filtered_by_name() {
+        use super::StrainField;
+        let conn = establish_connection().unwrap();
     }
 }
