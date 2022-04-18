@@ -1,6 +1,7 @@
 use super::models::{NewStrain, Species, Strain};
 use super::schema::strains::dsl::{self, id as sid, name, species, strains};
 
+use diesel::expression::sql_literal::{sql, SqlLiteral};
 use diesel::pg::PgConnection;
 use diesel::result::Error;
 use diesel::sql_types::{Integer, Varchar};
@@ -116,8 +117,8 @@ impl<'a> Retrievable<'_, 'a> for Strain {
     fn filter(conn: &PgConnection, field: StrainField) -> Result<Vec<Strain>, Error> {
         match field {
             StrainField::Id(i) => strains.filter(sid.eq(i)).get_results(conn),
-            StrainField::Name(n) => sql_query("SELECT * FROM strains WHERE name ILIKE '%?' ")
-                .bind::<Varchar, _>(&n)
+            StrainField::Name(n) => strains
+                .filter(sql("name ILIKE  ").bind::<Varchar, _>(n))
                 .get_results(conn),
             StrainField::Species(s) => strains.filter(species.eq(s)).get_results(conn),
         }
@@ -195,5 +196,7 @@ mod tests {
     fn strain_filtered_by_name() {
         use super::StrainField;
         let conn = establish_connection().unwrap();
+        let res = Strain::filter(&conn, StrainField::Name(&"gaylord oG")).unwrap();
+        assert_eq!(res[0].name, "Gaylord OG");
     }
 }
