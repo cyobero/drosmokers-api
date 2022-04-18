@@ -88,8 +88,11 @@ pub trait Retrievable<'a, 'n, C = PgConnection, E = Error> {
     /// let conn = establish_connection().unwrap();
     /// let filtered_by_id = Strain::filter(&conn, StrainField::Id(3)).unwrap();
     /// let indicas = Strain::filter(&conn, StrainField::Species(Indica)).unwrap();
+    /// let cake = Strain::filter(&conn, StrainField::Name(&"wedding cake")).unwrap();
+    ///
     /// assert_eq!(filtered_by_id[0].id, 3);
     /// assert_eq!(indicas[2].species, Species::Indica);
+    /// assert_eq!(cake[0].name, "Wedding Cake");
     fn filter(conn: &C, field: Self::Field) -> Result<Vec<Self::Output>, E>;
 }
 
