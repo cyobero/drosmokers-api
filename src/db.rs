@@ -143,7 +143,7 @@ mod tests {
     fn new_strain_created() {
         let conn = establish_connection().unwrap();
         let new = NewStrain {
-            name: "Gaylord OG".to_owned(),
+            name: "Test OG".to_owned(),
             species: Species::Indica,
         };
         let strain = new.create(&conn);
