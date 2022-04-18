@@ -18,7 +18,7 @@ table! {
 
     growers (id) {
         id -> Int4,
-        name -> Nullable<Varchar>,
+        name -> Varchar,
     }
 }
 

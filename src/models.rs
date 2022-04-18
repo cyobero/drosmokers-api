@@ -1,5 +1,6 @@
-use super::schema::strains;
+use super::schema::{batches, strains};
 
+use chrono::NaiveDate;
 use diesel::sql_types::{Integer, VarChar};
 use diesel::{QueryDsl, Queryable, QueryableByName, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
@@ -19,6 +20,16 @@ pub enum Species {
 pub struct NewStrain {
     pub name: String,
     pub species: Species,
+}
+
+#[derive(Debug, Deserialize, Serialize, Insertable)]
+#[table_name = "batches"]
+pub struct NewBatch {
+    pub strain_id: i32,
+    pub harvest_date: Option<NaiveDate>,
+    pub final_test_date: Option<NaiveDate>,
+    pub package_date: Option<NaiveDate>,
+    pub grower_id: i32,
 }
 
 #[derive(Debug, Deserialize, Serialize, QueryableByName, Queryable)]
