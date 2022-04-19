@@ -30,6 +30,8 @@ pub struct NewBatch {
     pub final_test_date: Option<NaiveDate>,
     pub package_date: Option<NaiveDate>,
     pub grower_id: i32,
+    pub thc_content: f32,
+    pub cbd_content: f32,
 }
 
 #[derive(Debug, Deserialize, Serialize, QueryableByName, Queryable)]
