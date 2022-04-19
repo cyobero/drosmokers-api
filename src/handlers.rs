@@ -1,9 +1,17 @@
 use super::db::*;
-use super::models::{NewStrain, Strain};
+use super::models::{NewBatch, NewStrain, Strain};
 use super::DbPool;
 use actix_web::{get, post, web, HttpResponse, Responder};
 
 use serde_json::json;
+
+//#[post("/batches")]
+//async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> impl Responder {
+//let conn = pool.get().expect("Could not get connection.");
+//let batch = data.into_inner();
+
+//unimplemented!()
+//}
 
 #[get("/strains/{id}")]
 async fn get_strain_id(pool: web::Data<DbPool>, path: web::Path<(i32,)>) -> impl Responder {
