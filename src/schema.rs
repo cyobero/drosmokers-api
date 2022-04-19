@@ -9,6 +9,8 @@ table! {
         final_test_date -> Nullable<Date>,
         package_date -> Nullable<Date>,
         grower_id -> Int4,
+        thc_content -> Float4,
+        cbd_content -> Float4,
     }
 }
 

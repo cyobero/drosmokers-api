@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Could not create pool.");
 
-    let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8889);
+    let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8008);
     println!("Serving at {:?}", socket);
 
     HttpServer::new(move || {

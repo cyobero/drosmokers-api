@@ -11,6 +11,8 @@ CREATE TABLE batches (
     final_test_date DATE NULL,
     package_date DATE NULL,
     grower_id INT NOT NULL,
+    thc_content FLOAT4 NOT NULL,
+    cbd_content FLOAT4 NOT NULL,
     FOREIGN KEY (strain_id) REFERENCES strains (id) ON DELETE CASCADE,
     FOREIGN KEY (grower_id) REFERENCES growers (id) ON DELETE CASCADE
 );
