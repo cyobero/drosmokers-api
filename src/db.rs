@@ -1,4 +1,4 @@
-use super::models::{NewStrain, Species, Strain};
+use super::models::{NewBatch, NewStrain, Species, Strain};
 use super::schema::strains::dsl::{self, id as sid, name, species, strains};
 
 use diesel::expression::sql_literal::{sql, SqlLiteral};
@@ -94,6 +94,10 @@ pub trait Retrievable<'a, 'n, C = PgConnection, E = Error> {
     /// assert_eq!(indicas[2].species, Species::Indica);
     /// assert_eq!(cake[0].name, "Wedding Cake");
     fn filter(conn: &C, field: Self::Field) -> Result<Vec<Self::Output>, E>;
+}
+
+impl Creatable for NewBatch {
+    type Output = Batch;
 }
 
 impl Creatable for NewStrain {
