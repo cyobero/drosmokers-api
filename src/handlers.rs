@@ -16,10 +16,7 @@ async fn get_strain_id(pool: web::Data<DbPool>, path: web::Path<(i32,)>) -> impl
 }
 
 #[post("/strains")]
-async fn post_new_strain(
-    pool: web::Data<DbPool>,
-    data: web::Json<NewStrain>,
-) -> Result<impl Responder, HttpResponse> {
+async fn post_new_strain(pool: web::Data<DbPool>, data: web::Json<NewStrain>) -> impl Responder {
     let conn = pool.get().expect("Couldn't get connection.");
     let strain = data.into_inner();
     web::block(move || strain.create(&conn))
@@ -31,7 +28,7 @@ async fn post_new_strain(
         })
 }
 #[get("/strains")]
-async fn get_strains_handler(pool: web::Data<DbPool>) -> Result<impl Responder, HttpResponse> {
+async fn get_strains_handler(pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("Couldn't get connection.");
     web::block(move || Strain::all(&conn))
         .await
