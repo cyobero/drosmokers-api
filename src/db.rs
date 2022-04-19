@@ -1,4 +1,5 @@
-use super::models::{NewBatch, NewStrain, Species, Strain};
+use super::models::{Batch, NewBatch, NewStrain, Species, Strain};
+use super::schema::batches::dsl::*;
 use super::schema::strains::dsl::{self, id as sid, name, species, strains};
 
 use diesel::expression::sql_literal::{sql, SqlLiteral};
@@ -98,6 +99,9 @@ pub trait Retrievable<'a, 'n, C = PgConnection, E = Error> {
 
 impl Creatable for NewBatch {
     type Output = Batch;
+    fn create(&self, conn: &PgConnection) -> Result<Batch, Error> {
+        diesel::insert_into(batches).values(self).get_result(conn)
+    }
 }
 
 impl Creatable for NewStrain {
