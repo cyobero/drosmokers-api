@@ -1,6 +1,6 @@
  TODO
 
-- Implement traits for Grower/NewGrower
+- ~~Implement traits for Grower/NewGrower~~ (2022-04-20)
 - ~~Create Grower model~~ (2022-04-20)
 - ~~Create Batch struct~~ (2022-04-19)
 - ~~Implement Creatable trait for NewBatch~~ (2022-04-19)
