@@ -1,6 +1,6 @@
 use super::models::{Batch, NewBatch, NewStrain, Species, Strain};
-use super::schema::batches::dsl::*;
-use super::schema::strains::dsl::{self, id as sid, name, species, strains};
+use super::schema::batches::dsl::{batches, id as bid};
+use super::schema::strains::dsl::{id as sid, name, species, strains};
 
 use diesel::expression::sql_literal::{sql, SqlLiteral};
 use diesel::pg::PgConnection;
@@ -111,6 +111,13 @@ impl Creatable for NewStrain {
     }
 }
 
+impl Deletable for Batch {
+    type Output = Batch;
+    fn delete(&self, conn: &PgConnection) -> Result<Batch, Error> {
+        diesel::delete(batches.find(&self.id)).get_result(conn)
+    }
+}
+
 impl Deletable for Strain {
     type Output = Strain;
     fn delete(&self, conn: &PgConnection) -> Result<Strain, Error> {
@@ -213,9 +220,7 @@ mod tests {
 
     #[test]
     fn new_batch_created() {
-        use crate::models::NewBatchBuilder;
-        use crate::models::{Batch, NewBatch};
-        use chrono::NaiveDate;
+        use crate::models::NewBatch;
         let conn = establish_connection().unwrap();
         let batch = NewBatch::builder()
             .strain_id(1)
@@ -226,5 +231,20 @@ mod tests {
             .create(&conn);
 
         assert_eq!(batch.unwrap().strain_id, 1);
+    }
+
+    #[test]
+    fn batch_deleted() {
+        use super::Deletable;
+        let conn = establish_connection().unwrap();
+        let batch = NewBatch::builder()
+            .strain_id(1)
+            .grower_id(1)
+            .thc_content(32.9)
+            .cbd_content(1.2)
+            .build()
+            .create(&conn);
+
+        assert!(batch.is_ok());
     }
 }
