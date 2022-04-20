@@ -1,10 +1,9 @@
 # TODO
 
 - ~~Create Batch struct~~ (2022-04-19)
-- Implement Creatable trait for NewBatch
+- ~~Implement Creatable trait for NewBatch~~ (2022-04-19)
 - Create handler for posting NewBatch
 - ~~Add THC and CBD content fields to NewBatch struct~~ (2022-04-19)
-- Create handler for creating new Batch object
 - ~~Create Batch object~~ (2022-04-18)
 - Containerize app
 - ~~Create post handler to make new Strain~~ (2022-04-18)
