@@ -5,6 +5,16 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 
 use serde_json::json;
 
+#[post("/batches")]
+async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    let batch = data.into_inner();
+    web::block(move || batch.create(&conn))
+        .await
+        .map(|b| HttpResponse::Ok().json(json!({"status code": 200, "data": b})))
+        .map_err(|e| HttpResponse::InternalServerError().body(e.to_string()))
+}
+
 #[get("/strains/{id}")]
 async fn get_strain_id(pool: web::Data<DbPool>, path: web::Path<(i32,)>) -> impl Responder {
     let id = path.into_inner().0;
@@ -27,6 +37,7 @@ async fn post_new_strain(pool: web::Data<DbPool>, data: web::Json<NewStrain>) ->
                 .json(json!({"status code": 400, "message": e.to_string()}))
         })
 }
+
 #[get("/strains")]
 async fn get_strains_handler(pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("Couldn't get connection.");

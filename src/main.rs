@@ -41,6 +41,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_strains_handler)
             .service(post_new_strain)
             .service(get_strain_id)
+            .service(post_new_batch)
     })
     .bind(socket)?
     .run()
