@@ -1,5 +1,6 @@
-use super::models::{Batch, NewBatch, NewStrain, Species, Strain};
+use super::models::*;
 use super::schema::batches::dsl::{batches, id as bid};
+use super::schema::growers::dsl::{growers, id as gid, name as grower_name};
 use super::schema::strains::dsl::{id as sid, name, species, strains};
 
 use diesel::expression::sql_literal::{sql, SqlLiteral};
@@ -68,9 +69,8 @@ pub trait Deletable<C = PgConnection, E = Error> {
 }
 
 /// Trait for retrieving objects
-pub trait Retrievable<'a, 'n, C = PgConnection, E = Error> {
+pub trait Retrievable<'a, 'n, Output = Self, C = PgConnection, E = Error> {
     type Field;
-    type Output;
 
     /// Retrieve all DB records of this object
     ///
@@ -78,7 +78,7 @@ pub trait Retrievable<'a, 'n, C = PgConnection, E = Error> {
     /// let conn = establish_connection().unwrap();
     /// let all = Strain::all(&conn);
     /// assert_ne!(all.as_ref().unwrap().len(), 0);
-    fn all(conn: &C) -> Result<Vec<Self::Output>, Error>;
+    fn all(conn: &C) -> Result<Vec<Output>, Error>;
 
     /// Retrieve a collection of objects that match a specified criteria
     ///
@@ -94,7 +94,14 @@ pub trait Retrievable<'a, 'n, C = PgConnection, E = Error> {
     /// assert_eq!(filtered_by_id[0].id, 3);
     /// assert_eq!(indicas[2].species, Species::Indica);
     /// assert_eq!(cake[0].name, "Wedding Cake");
-    fn filter(conn: &C, field: Self::Field) -> Result<Vec<Self::Output>, E>;
+    fn filter(conn: &C, field: Self::Field) -> Result<Vec<Output>, E>;
+}
+
+impl Creatable for NewGrower<'_> {
+    type Output = Grower;
+    fn create(&self, conn: &PgConnection) -> Result<Grower, Error> {
+        diesel::insert_into(growers).values(self).get_result(conn)
+    }
 }
 
 impl Creatable for NewBatch {
@@ -108,6 +115,13 @@ impl Creatable for NewStrain {
     type Output = Strain;
     fn create(&self, conn: &PgConnection) -> Result<Strain, Error> {
         diesel::insert_into(strains).values(self).get_result(conn)
+    }
+}
+
+impl Deletable for Grower {
+    type Output = Grower;
+    fn delete(&self, conn: &PgConnection) -> Result<Grower, Error> {
+        diesel::delete(growers.find(&self.id)).get_result(conn)
     }
 }
 
@@ -127,7 +141,6 @@ impl Deletable for Strain {
 
 impl<'a> Retrievable<'_, 'a> for Strain {
     type Field = StrainField<'a>;
-    type Output = Strain;
     fn all(conn: &PgConnection) -> Result<Vec<Strain>, Error> {
         strains.load(conn)
     }
@@ -246,5 +259,15 @@ mod tests {
             .create(&conn);
 
         assert!(batch.is_ok());
+    }
+
+    #[test]
+    fn new_grower_created() {
+        use super::Creatable;
+        let conn = establish_connection().unwrap();
+        let new = NewGrower {
+            name: "Tegridy Farms",
+        };
+        let grower = new.create(&conn);
     }
 }
