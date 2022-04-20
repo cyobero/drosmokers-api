@@ -213,7 +213,18 @@ mod tests {
 
     #[test]
     fn new_batch_created() {
-        use super::{Batch, NewBatch};
+        use crate::models::NewBatchBuilder;
+        use crate::models::{Batch, NewBatch};
+        use chrono::NaiveDate;
         let conn = establish_connection().unwrap();
+        let batch = NewBatch::builder()
+            .strain_id(1)
+            .grower_id(1)
+            .thc_content(22.9)
+            .cbd_content(0.2)
+            .build()
+            .create(&conn);
+
+        assert_eq!(batch.unwrap().strain_id, 1);
     }
 }

@@ -1,6 +1,6 @@
 # TODO
 
-- Create Batch struct
+- ~~Create Batch struct~~ (2022-04-19)
 - Implement Creatable trait for NewBatch
 - Create handler for posting NewBatch
 - ~~Add THC and CBD content fields to NewBatch struct~~ (2022-04-19)

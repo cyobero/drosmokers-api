@@ -1,5 +1,5 @@
 use super::db::*;
-use super::models::{NewBatch, NewStrain, Strain};
+use super::models::{Batch, NewBatch, NewStrain, Strain};
 use super::DbPool;
 use actix_web::{get, post, web, HttpResponse, Responder};
 
