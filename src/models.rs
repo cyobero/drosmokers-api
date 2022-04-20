@@ -38,7 +38,7 @@ pub struct NewBatch {
 #[derive(Debug, Deserialize, Serialize, QueryableByName, Queryable)]
 #[table_name = "batches"]
 pub struct Batch {
-    #[sql_type = "Int4"]
+    #[sql_type = "Integer"]
     pub id: i32,
 
     #[sql_type = "Int4"]
@@ -53,7 +53,7 @@ pub struct Batch {
     #[sql_type = "Date"]
     pub package_date: Option<NaiveDate>,
 
-    #[sql_type = "Int4"]
+    #[sql_type = "Integer"]
     pub grower_id: i32,
 
     #[sql_type = "Float4"]
