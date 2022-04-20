@@ -34,13 +34,13 @@ pub struct NewBatch {
     pub thc_content: f32,
     pub cbd_content: f32,
 }
-#[derive(Debug, Deserialize, Serialize, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name = "growers"]
-pub struct NewGrower<'a> {
-    pub name: &'a str,
+pub struct NewGrower {
+    pub name: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, QueryableByName, Queryable)]
+#[derive(Clone, Deserialize, Serialize, QueryableByName, Queryable)]
 #[table_name = "growers"]
 pub struct Grower {
     #[sql_type = "Integer"]

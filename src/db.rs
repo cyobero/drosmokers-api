@@ -103,7 +103,7 @@ pub trait Retrievable<'a, Output = Self, C = PgConnection, E = Error> {
     fn filter(conn: &C, field: Self::Field) -> Result<Vec<Output>, E>;
 }
 
-impl Creatable for NewGrower<'_> {
+impl Creatable for NewGrower {
     type Output = Grower;
     fn create(&self, conn: &PgConnection) -> Result<Grower, Error> {
         diesel::insert_into(growers).values(self).get_result(conn)
@@ -288,7 +288,7 @@ mod tests {
         use super::Creatable;
         let conn = establish_connection().unwrap();
         let new = NewGrower {
-            name: "Tegridy Farms",
+            name: "Tegridy Farms".to_string(),
         };
         let grower = new.create(&conn);
     }
