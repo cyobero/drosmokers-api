@@ -1,5 +1,7 @@
  TODO
 
+- Make Strain `name` field `UNIQUE`
+- ~~Make Grower `name` field `UNIQUE`~~ (2022-04-20)
 - Create Response model for GET /batches
 - Create handler for creating new Grower
 - Create handler for retrieving growers
