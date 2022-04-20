@@ -15,6 +15,12 @@ use std::env;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
+pub enum GrowerField<'a, I = i32, N = &'a str> {
+    Id(I),
+    Name(&'a N),
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum StrainField<'a, I = i32, N = &'a str, S = Species> {
     Id(I),
     Name(&'a N),
@@ -69,7 +75,7 @@ pub trait Deletable<C = PgConnection, E = Error> {
 }
 
 /// Trait for retrieving objects
-pub trait Retrievable<'a, 'n, Output = Self, C = PgConnection, E = Error> {
+pub trait Retrievable<'a, Output = Self, C = PgConnection, E = Error> {
     type Field;
 
     /// Retrieve all DB records of this object
@@ -139,7 +145,23 @@ impl Deletable for Strain {
     }
 }
 
-impl<'a> Retrievable<'_, 'a> for Strain {
+impl<'a> Retrievable<'a> for Grower {
+    type Field = GrowerField<'a>;
+    fn all(conn: &PgConnection) -> Result<Vec<Grower>, Error> {
+        growers.load(conn)
+    }
+
+    fn filter(conn: &PgConnection, field: GrowerField) -> Result<Vec<Grower>, Error> {
+        match field {
+            GrowerField::Id(i) => growers.filter(gid.eq(i)).get_results(conn),
+            GrowerField::Name(n) => growers
+                .filter(sql("name ILIKE ").bind::<Varchar, _>(n))
+                .get_results(conn),
+        }
+    }
+}
+
+impl<'a> Retrievable<'a> for Strain {
     type Field = StrainField<'a>;
     fn all(conn: &PgConnection) -> Result<Vec<Strain>, Error> {
         strains.load(conn)
@@ -269,5 +291,21 @@ mod tests {
             name: "Tegridy Farms",
         };
         let grower = new.create(&conn);
+    }
+
+    #[test]
+    fn grower_retrieved_by_name() {
+        use super::Retrievable;
+        let conn = establish_connection().unwrap();
+        let tegridy = Grower::filter(&conn, GrowerField::Name(&"Tegridy Farms")).unwrap();
+        assert_eq!(tegridy[0].name, "Tegridy Farms");
+    }
+
+    #[test]
+    fn all_growers_retrieved() {
+        use super::Retrievable;
+        let conn = establish_connection().unwrap();
+        let _growers = Grower::all(&conn);
+        assert!(_growers.is_ok());
     }
 }
