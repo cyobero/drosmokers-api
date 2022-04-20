@@ -86,9 +86,9 @@ impl fmt::Display for Species {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct BatchBuilder(Batch);
+pub struct NewBatchBuilder<T = NewBatch>(T);
 
-impl BatchBuilder {
+impl NewBatchBuilder {
     pub fn strain_id(mut self, id: i32) -> Self {
         self.0.strain_id = id;
         self
@@ -114,13 +114,43 @@ impl BatchBuilder {
         self
     }
 
-    pub fn thc_content(mut self, amt: f32) -> Self {
-        self.0.thc_content = amt;
+    pub fn thc_content(mut self, thc: f32) -> Self {
+        self.0.thc_content = thc;
         self
     }
 
-    pub fn cbd_content(mut self, amt: f32) -> Self {
-        self.0.cbd_content = amt;
+    pub fn cbd_content(mut self, cbd: f32) -> Self {
+        self.0.cbd_content = cbd;
         self
+    }
+
+    pub fn build(self) -> NewBatch {
+        NewBatch {
+            strain_id: self.0.strain_id,
+            harvest_date: self.0.harvest_date,
+            final_test_date: self.0.final_test_date,
+            package_date: self.0.package_date,
+            grower_id: self.0.grower_id,
+            thc_content: self.0.thc_content,
+            cbd_content: self.0.cbd_content,
+        }
+    }
+}
+
+impl NewBatch {
+    pub fn new() -> Self {
+        NewBatch {
+            strain_id: -1,
+            harvest_date: None,
+            final_test_date: None,
+            package_date: None,
+            grower_id: -1,
+            thc_content: 0.0,
+            cbd_content: 0.0,
+        }
+    }
+
+    pub fn builder() -> NewBatchBuilder {
+        NewBatchBuilder(Self::new())
     }
 }
