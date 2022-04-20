@@ -1,5 +1,6 @@
  TODO
 
+- Write API doc
 - Make Strain `name` field `UNIQUE`
 - ~~Make Grower `name` field `UNIQUE`~~ (2022-04-20)
 - Create Response model for GET /batches
