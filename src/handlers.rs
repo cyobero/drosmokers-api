@@ -1,9 +1,31 @@
 use super::db::*;
-use super::models::{Batch, NewBatch, NewStrain, Strain};
+use super::models::{Batch, Grower, NewBatch, NewGrower, NewStrain, Strain};
 use super::DbPool;
 use actix_web::{get, post, web, HttpResponse, Responder};
 
 use serde_json::json;
+
+#[post("/growers")]
+async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) -> impl Responder {
+    let grower = data.into_inner();
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || grower.create(&conn))
+        .await
+        .map(|g| HttpResponse::Ok().json(json!({"status code": 200, "data": g})))
+        .map_err(|e| {
+            HttpResponse::InternalServerError()
+                .json(json!({"status code": 500, "message": e.to_string()}))
+        })
+}
+
+#[get("/growers")]
+async fn get_all_growers(pool: web::Data<DbPool>) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || Grower::all(&conn))
+        .await
+        .map(|g| web::Json(g))
+        .map_err(|e| HttpResponse::InternalServerError().body(e.to_string()))
+}
 
 #[post("/batches")]
 async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> impl Responder {
