@@ -1,5 +1,8 @@
  TODO
 
+- Create Response model for GET /batches
+- Create handler for creating new Grower
+- Create handler for retrieving growers
 - ~~Implement traits for Grower/NewGrower~~ (2022-04-20)
 - ~~Create Grower model~~ (2022-04-20)
 - ~~Create Batch struct~~ (2022-04-19)
