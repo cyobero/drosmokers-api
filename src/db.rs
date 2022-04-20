@@ -258,14 +258,14 @@ mod tests {
         use crate::models::NewBatch;
         let conn = establish_connection().unwrap();
         let batch = NewBatch::builder()
-            .strain_id(1)
-            .grower_id(1)
+            .strain_id(3)
+            .grower_id(3)
             .thc_content(22.9)
             .cbd_content(0.2)
             .build()
             .create(&conn);
 
-        assert_eq!(batch.unwrap().strain_id, 1);
+        assert_eq!(batch.unwrap().strain_id, 3);
     }
 
     #[test]
@@ -273,14 +273,15 @@ mod tests {
         use super::Deletable;
         let conn = establish_connection().unwrap();
         let batch = NewBatch::builder()
-            .strain_id(1)
-            .grower_id(1)
+            .strain_id(5)
+            .grower_id(3)
             .thc_content(32.9)
             .cbd_content(1.2)
             .build()
-            .create(&conn);
+            .create(&conn)
+            .unwrap();
 
-        assert!(batch.is_ok());
+        assert!(batch.delete(&conn).is_ok());
     }
 
     #[test]
