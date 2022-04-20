@@ -210,4 +210,10 @@ mod tests {
         let res = Strain::filter(&conn, StrainField::Name(&"gaylord oG")).unwrap();
         assert_eq!(res[0].name, "Gaylord OG");
     }
+
+    #[test]
+    fn new_batch_created() {
+        use super::{Batch, NewBatch};
+        let conn = establish_connection().unwrap();
+    }
 }
