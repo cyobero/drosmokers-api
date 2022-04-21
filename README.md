@@ -1,2 +1,5 @@
 # drosmokers-api
-REST API for my drosmokers Python app
+Drosmokers is an app that allows users to keep track of the different strains they've smoked.
+
+## Resources
+###Strains
