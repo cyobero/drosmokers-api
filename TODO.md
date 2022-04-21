@@ -1,7 +1,7 @@
  TODO
 
-- Implement `Retrievable` for `Batch`
-- Create handler for retrieving all `Batch` objects
+- ~~Implement `Retrievable` for `Batch`~~ (2022-04-21)
+- ~~Create handler for retrieving all `Batch` objects~~ (2022-04-21)
 - Write API doc
 - Make Strain `name` field `UNIQUE`
 - ~~Make Grower `name` field `UNIQUE`~~ (2022-04-20)
