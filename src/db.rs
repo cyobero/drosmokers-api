@@ -3,6 +3,7 @@ use super::schema::batches::dsl::{batches, id as bid};
 use super::schema::growers::dsl::{growers, id as gid, name as grower_name};
 use super::schema::strains::dsl::{id as sid, name, species, strains};
 
+use chrono::NaiveDate;
 use diesel::expression::sql_literal::{sql, SqlLiteral};
 use diesel::pg::PgConnection;
 use diesel::result::Error;
@@ -13,6 +14,16 @@ use diesel::{
 use dotenv::dotenv;
 use std::env;
 use std::fmt;
+
+#[derive(Debug, Clone, Copy)]
+pub enum BatchField {
+    StrainID(i32),
+    HarvestDate(NaiveDate),
+    FinalTestDate(NaiveDate),
+    PackageDate(NaiveDate),
+    THCContent(f32),
+    CBDContent(f32),
+}
 
 #[derive(Debug, Clone, Copy)]
 pub enum GrowerField<'a, I = i32, N = &'a str> {
