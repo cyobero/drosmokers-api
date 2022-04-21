@@ -156,6 +156,17 @@ impl Deletable for Strain {
     }
 }
 
+impl Retrievable<'_> for Batch {
+    type Field = BatchField;
+    fn all(conn: &PgConnection) -> Result<Vec<Batch>, Error> {
+        batches.load(conn)
+    }
+
+    fn filter(conn: &PgConnection, field: BatchField) -> Result<Vec<Batch>, Error> {
+        unimplemented!()
+    }
+}
+
 impl<'a> Retrievable<'a> for Grower {
     type Field = GrowerField<'a>;
     fn all(conn: &PgConnection) -> Result<Vec<Grower>, Error> {

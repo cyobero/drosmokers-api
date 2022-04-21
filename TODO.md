@@ -1,11 +1,13 @@
  TODO
 
+- Implement `Retrievable` for `Batch`
+- Create handler for retrieving all `Batch` objects
 - Write API doc
 - Make Strain `name` field `UNIQUE`
 - ~~Make Grower `name` field `UNIQUE`~~ (2022-04-20)
 - Create Response model for GET /batches
-- Create handler for creating new Grower
-- Create handler for retrieving growers
+- ~~Create handler for creating new Grower~~ (2022-04-20)
+- ~~Create handler for retrieving growers~~ (2022-04-20)
 - ~~Implement traits for Grower/NewGrower~~ (2022-04-20)
 - ~~Create Grower model~~ (2022-04-20)
 - ~~Create Batch struct~~ (2022-04-19)

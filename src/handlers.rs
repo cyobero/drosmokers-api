@@ -27,6 +27,18 @@ async fn get_all_growers(pool: web::Data<DbPool>) -> impl Responder {
         .map_err(|e| HttpResponse::InternalServerError().body(e.to_string()))
 }
 
+#[get("/batches")]
+async fn get_all_batches(pool: web::Data<DbPool>) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || Batch::all(&conn))
+        .await
+        .map(|b| web::Json(b))
+        .map_err(|e| {
+            HttpResponse::InternalServerError()
+                .json(json!({"status code": 500, "message": e.to_string()}))
+        })
+}
+
 #[post("/batches")]
 async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
