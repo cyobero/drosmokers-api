@@ -273,7 +273,7 @@ mod tests {
         use super::Deletable;
         let conn = establish_connection().unwrap();
         let batch = NewBatch::builder()
-            .strain_id(5)
+            .strain_id(1)
             .grower_id(3)
             .thc_content(32.9)
             .cbd_content(1.2)
