@@ -5,12 +5,8 @@ Drosmokers is an app that allows users to keep track of the different strains th
 
 ### Strains
 ------------------------------------------------------------------------
-- `GET /strains/`         Retrieve a list of all `Strain`s
-- `GET /strains/{id}`     Return a `Strain` with `{id``}`
-- `POST /strains`         Create a new `Strain` by passing
-                        a JSON object. Ex:
-                        `curl -X POST\
-                        -H "Content-Type: application/json"
-                        -d '{"name": "Foo", "species": "Indica"}'`
-
-### Batches
+- `GET /strains/`   Returns a list of all `Strain`s.
+  Example:
+    request: `curl localhost:8008/strains`
+    response: `[{"name":"OG Kush", "species": "Indica"},
+                {"name": "Reggie Kush", "species": "Sativa"}]`
