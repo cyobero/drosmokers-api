@@ -13,4 +13,4 @@ Drosmokers is an app that allows users to keep track of the different strains th
 ### Batches
 ------------------------------------------------------------------------
 - `GET /batches` &emsp; Return a list of all `Batch`es
-- `POST /batches` &emsp; Creaate a new `Batch`
+- `POST /batches` &emsp; Create a new `Batch`
