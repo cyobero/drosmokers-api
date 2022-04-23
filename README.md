@@ -5,6 +5,6 @@ Drosmokers is an app that allows users to keep track of the different strains th
 
 ### Strains
 ------------------------------------------------------------------------
-- `GET /strains`        \\ Return a list of all `Strain`s
-- `GET /strains/{id}`   Return a `Strain` with a given `{id}`
+- `GET /strains`       &emsp; Return a list of all `Strain`s
+- `GET /strains/{id}`   &emsp; Return a `Strain` with a given `{id}`
 - `POST /strains`       Create a new `Strain`
