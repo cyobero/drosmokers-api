@@ -35,11 +35,29 @@ table! {
     }
 }
 
+table! {
+    use diesel::sql_types::*;
+    use crate::exports::*;
+
+    terpenes (id) {
+        id -> Int4,
+        batch_id -> Int4,
+        caryophyllene -> Nullable<Float4>,
+        humulene -> Nullable<Float4>,
+        limonene -> Nullable<Float4>,
+        linalool -> Nullable<Float4>,
+        myrcene -> Nullable<Float4>,
+        pinene -> Nullable<Float4>,
+    }
+}
+
 joinable!(batches -> growers (grower_id));
 joinable!(batches -> strains (strain_id));
+joinable!(terpenes -> batches (batch_id));
 
 allow_tables_to_appear_in_same_query!(
     batches,
     growers,
     strains,
+    terpenes,
 );

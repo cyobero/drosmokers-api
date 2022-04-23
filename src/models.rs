@@ -1,4 +1,4 @@
-use super::schema::{batches, growers, strains};
+use super::schema::{batches, growers, strains, terpenes};
 
 use chrono::NaiveDate;
 use diesel::deserialize::FromSql;
@@ -34,10 +34,19 @@ pub struct NewBatch {
     pub thc_content: f32,
     pub cbd_content: f32,
 }
+
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name = "growers"]
 pub struct NewGrower {
     pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
+#[table_name = "terpenes"]
+pub struct NewTerpenes {
+    pub batch_id: i32,
+    pub caryophyllene: Option<f32>,
+    pub humulene: Option<f32>,
 }
 
 #[derive(Clone, Deserialize, Serialize, QueryableByName, Queryable)]
