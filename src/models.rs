@@ -16,6 +16,7 @@ pub enum Species {
     Hybrid,
 }
 
+/// Struct used to create new `Strain` object
 #[derive(Debug, Deserialize, Serialize, Insertable)]
 #[table_name = "strains"]
 pub struct NewStrain {
@@ -23,6 +24,7 @@ pub struct NewStrain {
     pub species: Species,
 }
 
+/// Struct used to create new `Batch` object
 #[derive(Debug, Deserialize, Serialize, Insertable)]
 #[table_name = "batches"]
 pub struct NewBatch {
@@ -34,12 +36,15 @@ pub struct NewBatch {
     pub thc_content: f32,
     pub cbd_content: f32,
 }
+
+/// Struct used to create new `Grower` object
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name = "growers"]
 pub struct NewGrower {
     pub name: String,
 }
 
+/// Struct used for retrieving `Grower` object
 #[derive(Clone, Deserialize, Serialize, QueryableByName, Queryable)]
 #[table_name = "growers"]
 pub struct Grower {
