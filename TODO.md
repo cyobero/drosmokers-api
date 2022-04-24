@@ -1,5 +1,4 @@
  TODO
-
 - Create `Terpenes` model
 - ~~Implement `Retrievable` for `Batch`~~ (2022-04-21)
 - ~~Create handler for retrieving all `Batch` objects~~ (2022-04-21)

@@ -42,7 +42,7 @@ pub enum StrainField<'a, I = i32, N = &'a str, S = Species> {
     Species(S),
 }
 
-/// A Utility function to establish DB connection
+/// A utility function to establish DB connection
 /// Example:
 /// let conn = establish_connection();
 /// assert!(conn.is_ok());
