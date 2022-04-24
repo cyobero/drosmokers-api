@@ -44,7 +44,6 @@ pub struct NewGrower {
     pub name: String,
 }
 
-<<<<<<< HEAD
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name = "terpenes"]
 pub struct NewTerpenes {
