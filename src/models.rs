@@ -50,6 +50,10 @@ pub struct NewTerpenes {
     pub batch_id: i32,
     pub caryophyllene: Option<f32>,
     pub humulene: Option<f32>,
+    pub limonene: Option<f32>,
+    pub linalool: Option<f32>,
+    pub myrcene: Option<f32>,
+    pub pinene: Option<f32>,
 }
 
 /// Struct used for retrieving `Grower` object
