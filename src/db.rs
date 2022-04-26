@@ -7,16 +7,13 @@ use super::schema::growers::dsl::{growers, id as gid, name as grower_name};
 use super::schema::strains::dsl::{id as sid, name, species, strains};
 
 use chrono::NaiveDate;
-use diesel::expression::sql_literal::{sql, SqlLiteral};
+use diesel::expression::sql_literal::sql;
 use diesel::pg::PgConnection;
 use diesel::result::Error;
-use diesel::sql_types::{Integer, Varchar};
-use diesel::{
-    sql_query, Connection, ConnectionError, ExpressionMethods, QueryDsl, Queryable, RunQueryDsl,
-};
+use diesel::sql_types::Varchar;
+use diesel::{Connection, ConnectionError, ExpressionMethods, QueryDsl, RunQueryDsl};
 use dotenv::dotenv;
 use std::env;
-use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
 pub enum BatchField {
