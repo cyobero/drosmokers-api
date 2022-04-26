@@ -117,8 +117,59 @@ impl fmt::Display for Species {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct NewTerpenesBuilder<T = NewTerpenes>(T);
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct NewBatchBuilder<T = NewBatch>(T);
+
+impl NewTerpenesBuilder {
+    pub fn batch_id(mut self, id: i32) -> Self {
+        self.0.batch_id = id;
+        self
+    }
+
+    pub fn caryophyllene(mut self, amt: Option<f32>) -> Self {
+        self.0.caryophyllene = amt;
+        self
+    }
+
+    pub fn humulene(mut self, amt: Option<f32>) -> Self {
+        self.0.humulene = amt;
+        self
+    }
+    pub fn limonene(mut self, amt: Option<f32>) -> Self {
+        self.0.limonene = amt;
+        self
+    }
+
+    pub fn hinalool(mut self, amt: Option<f32>) -> Self {
+        self.0.linalool = amt;
+        self
+    }
+
+    pub fn myrcene(mut self, amt: Option<f32>) -> Self {
+        self.0.myrcene = amt;
+        self
+    }
+
+    pub fn pinene(mut self, amt: Option<f32>) -> Self {
+        self.0.pinene = amt;
+        self
+    }
+
+    pub fn build(self) -> NewTerpenes {
+        NewTerpenes {
+            batch_id: self.0.batch_id,
+            caryophyllene: self.0.caryophyllene,
+            humulene: self.0.humulene,
+            limonene: self.0.limonene,
+            linalool: self.0.linalool,
+            myrcene: self.0.myrcene,
+            pinene: self.0.pinene,
+        }
+    }
+}
 
 impl NewBatchBuilder {
     pub fn strain_id(mut self, id: i32) -> Self {
@@ -166,6 +217,26 @@ impl NewBatchBuilder {
             thc_content: self.0.thc_content,
             cbd_content: self.0.cbd_content,
         }
+    }
+}
+
+impl Default for NewTerpenes {
+    fn default() -> NewTerpenes {
+        NewTerpenes {
+            batch_id: -1,
+            caryophyllene: None,
+            humulene: None,
+            limonene: None,
+            linalool: None,
+            myrcene: None,
+            pinene: None,
+        }
+    }
+}
+
+impl NewTerpenes {
+    pub fn new() -> Self {
+        NewTerpenes::default()
     }
 }
 
