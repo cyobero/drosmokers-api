@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt;
 
-#[derive(Debug, DbEnum, Deserialize, Serialize, PartialEq)]
+#[derive(Clone, Debug, DbEnum, Deserialize, Serialize, PartialEq)]
 pub enum Species {
     Indica,
     Sativa,
