@@ -1,4 +1,5 @@
  TODO
+- ~~Implement handler for querying Strain~~ (2022-04-25)
 - Create `Terpenes` model
 - ~~Implement `Retrievable` for `Batch`~~ (2022-04-21)
 - ~~Create handler for retrieving all `Batch` objects~~ (2022-04-21)
