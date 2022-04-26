@@ -1,8 +1,9 @@
 use super::db::*;
-use super::models::{Batch, Grower, NewBatch, NewGrower, NewStrain, Strain};
+use super::models::{Batch, Grower, NewBatch, NewGrower, NewStrain, Species, Strain};
 use super::DbPool;
 use actix_web::{get, post, web, HttpResponse, Responder};
 
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 #[post("/growers")]
@@ -49,14 +50,25 @@ async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> i
         .map_err(|e| HttpResponse::InternalServerError().body(e.to_string()))
 }
 
-#[get("/strains/{id}")]
-async fn get_strain_id(pool: web::Data<DbPool>, path: web::Path<(i32,)>) -> impl Responder {
-    let id = path.into_inner().0;
+#[derive(Debug, Deserialize, Clone)]
+struct StrainQuery {
+    id: Option<i32>,
+    name: Option<String>,
+    species: Option<Species>,
+}
+
+#[get("/strains/")]
+async fn query_strain(pool: web::Data<DbPool>, query: web::Query<StrainQuery>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || Strain::filter(&conn, StrainField::Id(id)))
-        .await
-        .map(|s| web::Json(s))
-        .map_err(|e| HttpResponse::InternalServerError().body(e.to_string()))
+    web::block(move || match (&query.id, &query.name, &query.species) {
+        (Some(i), _, _) => Strain::filter(&conn, StrainField::Id(*i)),
+        (_, Some(n), _) => Strain::filter(&conn, StrainField::Name(&&**n)),
+        (_, _, Some(s)) => Strain::filter(&conn, StrainField::Species(s.clone())),
+        _ => Strain::all(&conn),
+    })
+    .await
+    .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
+    .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string()})))
 }
 
 #[post("/strains")]
