@@ -238,6 +238,10 @@ impl NewTerpenes {
     pub fn new() -> Self {
         NewTerpenes::default()
     }
+
+    pub fn builder() -> NewTerpenesBuilder {
+        NewTerpenesBuilder(Self::new())
+    }
 }
 
 impl NewBatch {
