@@ -10,11 +10,9 @@ Once you have that installed, clone this repo and change into the directory
 Then, run:
 `cargo run`
 
-## Example Usage
-Some example API calls using [cURL](https://curl.se/):
-- Request:  `curl localhost:8008/strains`
-- Response: [
-## Resources
+Example request: 
+  `$ curl localhost:8008/strains/?id=12`
 
-### Strains
-- 
+Example response: 
+  `$ {"200":[{"id":12, "name":"Headbang", "species":"Hybrid"}]}`
+
