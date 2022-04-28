@@ -44,7 +44,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_new_batch)
             .service(get_growers)
             .service(post_new_grower)
-            .service(get_batches)
+        //.service(get_batches)
     })
     .bind(socket)?
     .run()
