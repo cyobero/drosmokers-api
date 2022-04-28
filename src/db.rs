@@ -11,7 +11,7 @@ use diesel::expression::sql_literal::sql;
 use diesel::pg::PgConnection;
 use diesel::result::Error;
 use diesel::sql_types::Varchar;
-use diesel::{Connection, ConnectionError, ExpressionMethods, QueryDsl, RunQueryDsl};
+use diesel::{sql_query, Connection, ConnectionError, ExpressionMethods, QueryDsl, RunQueryDsl};
 use dotenv::dotenv;
 use std::env;
 
@@ -158,23 +158,19 @@ impl Deletable for Strain {
     }
 }
 
-impl Retrievable<'_> for Batch {
+impl Retrievable<'_, BatchResponse> for Batch {
     type Field = BatchField;
-    fn all(conn: &PgConnection) -> Result<Vec<Batch>, Error> {
-        batches.load(conn)
+    fn all(conn: &PgConnection) -> Result<Vec<BatchResponse>, Error> {
+        sql_query(
+            "SELECT s.name as strain, b.harvest_date, b.final_test_date, b.package_date,
+             g.name as grower, b.thc_content, b.cbd_content FROM batches b INNER JOIN
+             strains s ON b.strain_id = s.id INNER JOIN growers g ON b.grower_id = g.id",
+        )
+        .get_results(conn)
     }
 
-    fn filter(conn: &PgConnection, field: BatchField) -> Result<Vec<Batch>, Error> {
-        match field {
-            BatchField::Id(i) => Batch::filter(conn, BatchField::Id(i)),
-            BatchField::StrainID(i) => Batch::filter(conn, BatchField::StrainID(i)),
-            BatchField::THCContent(t) => Batch::filter(conn, BatchField::THCContent(t)),
-            BatchField::CBDContent(c) => Batch::filter(conn, BatchField::CBDContent(c)),
-            BatchField::HarvestDate(h) => Batch::filter(conn, BatchField::HarvestDate(h)),
-            BatchField::FinalTestDate(f) => Batch::filter(conn, BatchField::FinalTestDate(f)),
-            BatchField::PackageDate(p) => Batch::filter(conn, BatchField::PackageDate(p)),
-            BatchField::GrowerID(g) => Batch::filter(conn, BatchField::GrowerID(g)),
-        }
+    fn filter(conn: &PgConnection, field: BatchField) -> Result<Vec<BatchResponse>, Error> {
+        unimplemented!()
     }
 }
 
@@ -344,18 +340,10 @@ mod tests {
     }
 
     #[test]
-    fn batch_filtered_by_strain_id() {
+    fn all_batches_retrieved() {
         use super::Retrievable;
         let conn = establish_connection().unwrap();
-        let batch = Batch::filter(&conn, BatchField::StrainID(1)).unwrap();
-        assert_eq!(batch[0].strain_id, 1);
-    }
-
-    #[test]
-    fn batch_filtered_by_grower_id() {
-        use super::Retrievable;
-        let conn = establish_connection().unwrap();
-        let batch = Batch::filter(&conn, BatchField::GrowerID(1)).unwrap();
-        assert_eq!(batch[0].grower_id, 1);
+        let all = Batch::all(&conn).unwrap();
+        assert_ne!(all.len(), 0);
     }
 }

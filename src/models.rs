@@ -57,21 +57,21 @@ pub struct NewTerpenes {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, QueryableByName)]
-pub struct BatchResponse<'a> {
+pub struct BatchResponse {
     #[sql_type = "VarChar"]
-    pub strain: &'a str,
+    pub strain: String,
 
-    #[sql_type = "Date"]
+    #[sql_type = "Nullable<Date>"]
     pub harvest_date: Option<NaiveDate>,
 
-    #[sql_type = "Date"]
+    #[sql_type = "Nullable<Date>"]
     pub final_test_date: Option<NaiveDate>,
 
-    #[sql_type = "Date"]
+    #[sql_type = "Nullable<Date>"]
     pub package_date: Option<NaiveDate>,
 
     #[sql_type = "VarChar"]
-    pub grower: &'a str,
+    pub grower: String,
 
     #[sql_type = "Float4"]
     pub thc_content: f32,
