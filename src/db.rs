@@ -1,7 +1,7 @@
 use super::models::*;
 use super::schema::batches::dsl::{
     batches, cbd_content, final_test_date, grower_id, harvest_date, id as bid, package_date,
-    thc_content,
+    strain_id, thc_content,
 };
 use super::schema::growers::dsl::{growers, id as gid, name as grower_name};
 use super::schema::strains::dsl::{id as sid, name, species, strains};
@@ -17,6 +17,7 @@ use std::env;
 
 #[derive(Debug, Clone, Copy)]
 pub enum BatchField {
+    Id(i32),
     StrainID(i32),
     HarvestDate(NaiveDate),
     FinalTestDate(NaiveDate),
@@ -165,13 +166,14 @@ impl Retrievable<'_> for Batch {
 
     fn filter(conn: &PgConnection, field: BatchField) -> Result<Vec<Batch>, Error> {
         match field {
-            BatchField::StrainID(i) => batches.filter(bid.eq(i)).get_results(conn),
-            BatchField::THCContent(t) => batches.filter(thc_content.ge(t)).get_results(conn),
-            BatchField::CBDContent(c) => batches.filter(cbd_content.le(c)).get_results(conn),
-            BatchField::HarvestDate(h) => batches.filter(harvest_date.eq(h)).get_results(conn),
-            BatchField::FinalTestDate(f) => batches.filter(final_test_date.eq(f)).get_results(conn),
-            BatchField::GrowerID(g) => batches.filter(grower_id.eq(g)).get_results(conn),
-            BatchField::PackageDate(p) => batches.filter(package_date.eq(p)).get_results(conn),
+            BatchField::Id(i) => Batch::filter(conn, BatchField::Id(i)),
+            BatchField::StrainID(i) => Batch::filter(conn, BatchField::StrainID(i)),
+            BatchField::THCContent(t) => Batch::filter(conn, BatchField::THCContent(t)),
+            BatchField::CBDContent(c) => Batch::filter(conn, BatchField::CBDContent(c)),
+            BatchField::HarvestDate(h) => Batch::filter(conn, BatchField::HarvestDate(h)),
+            BatchField::FinalTestDate(f) => Batch::filter(conn, BatchField::FinalTestDate(f)),
+            BatchField::PackageDate(p) => Batch::filter(conn, BatchField::PackageDate(p)),
+            BatchField::GrowerID(g) => Batch::filter(conn, BatchField::GrowerID(g)),
         }
     }
 }
