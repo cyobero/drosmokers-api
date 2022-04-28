@@ -56,6 +56,30 @@ pub struct NewTerpenes {
     pub pinene: Option<f32>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, QueryableByName)]
+pub struct BatchResponse<'a> {
+    #[sql_type = "VarChar"]
+    pub strain: &'a str,
+
+    #[sql_type = "Date"]
+    pub harvest_date: Option<NaiveDate>,
+
+    #[sql_type = "Date"]
+    pub final_test_date: Option<NaiveDate>,
+
+    #[sql_type = "Date"]
+    pub package_date: Option<NaiveDate>,
+
+    #[sql_type = "VarChar"]
+    pub grower: &'a str,
+
+    #[sql_type = "Float4"]
+    pub thc_content: f32,
+
+    #[sql_type = "Float4"]
+    pub cbd_content: f32,
+}
+
 /// Struct used for retrieving `Grower` object
 #[derive(Clone, Deserialize, Serialize, QueryableByName, Queryable)]
 #[table_name = "growers"]
