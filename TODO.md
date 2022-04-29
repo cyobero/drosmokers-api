@@ -1,5 +1,6 @@
  TODO
 
+- Implement `filter` for `Batch`
 - Create User login/authentication
 - Write doc string for handlers
 - ~~Implement handler for querying Strain~~ (2022-04-25)
