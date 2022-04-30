@@ -383,4 +383,11 @@ mod tests {
         let res = Batch::filter(&conn, BatchField::StrainID(3)).unwrap();
         assert_eq!(res[0].strain, "Blackwater OG".to_owned());
     }
+
+    #[test]
+    fn batch_filtered_by_growerID() {
+        let conn = establish_connection().unwrap();
+        let res = Batch::filter(&conn, BatchField::GrowerID(3)).unwrap();
+        assert_eq!(res[0].grower, "Summa");
+    }
 }
