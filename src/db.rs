@@ -10,19 +10,21 @@ use chrono::NaiveDate;
 use diesel::expression::sql_literal::sql;
 use diesel::pg::PgConnection;
 use diesel::result::Error;
-use diesel::sql_types::Varchar;
+use diesel::sql_types::{Date, Integer, VarChar};
 use diesel::{sql_query, Connection, ConnectionError, ExpressionMethods, QueryDsl, RunQueryDsl};
 use dotenv::dotenv;
 use std::env;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum BatchField {
     Id(i32),
+    Strain(String),
     StrainID(i32),
     HarvestDate(NaiveDate),
     FinalTestDate(NaiveDate),
     PackageDate(NaiveDate),
     GrowerID(i32),
+    Grower(String),
     THCContent(f32),
     CBDContent(f32),
 }
@@ -170,7 +172,34 @@ impl Retrievable<'_, BatchResponse> for Batch {
     }
 
     fn filter(conn: &PgConnection, field: BatchField) -> Result<Vec<BatchResponse>, Error> {
-        unimplemented!()
+        let stmt = "SELECT s.name as strain, b.harvest_date, b.final_test_date, b.package_date,
+             g.name as grower, b.thc_content, b.cbd_content FROM batches b INNER JOIN
+             strains s ON b.strain_id = s.id INNER JOIN growers g ON b.grower_id = g.id "
+            .to_owned();
+
+        match field {
+            BatchField::StrainID(_sid) => sql_query(stmt + " WHERE b.strain_id = 3 ")
+                .bind::<Integer, _>(_sid)
+                .get_results(conn),
+
+            BatchField::Strain(s) => sql_query(stmt + " WHERE s.name = '$1' ")
+                .bind::<VarChar, _>(s)
+                .get_results(conn),
+
+            BatchField::HarvestDate(h) => sql_query(stmt + "WHERE harvest_date = '$1'")
+                .bind::<Date, _>(h)
+                .get_results(conn),
+
+            BatchField::GrowerID(g) => sql_query(stmt + "WHERE g.id = $1")
+                .bind::<Integer, _>(g)
+                .get_results(conn),
+
+            BatchField::Grower(gr) => sql_query(stmt + "WHERE g.name = '$1'")
+                .bind::<VarChar, _>(gr)
+                .get_results(conn),
+
+            _ => Self::all(conn),
+        }
     }
 }
 
@@ -184,7 +213,7 @@ impl<'a> Retrievable<'a> for Grower {
         match field {
             GrowerField::Id(i) => growers.filter(gid.eq(i)).get_results(conn),
             GrowerField::Name(n) => growers
-                .filter(sql("name ILIKE ").bind::<Varchar, _>(n))
+                .filter(sql("name ILIKE ").bind::<VarChar, _>(n))
                 .get_results(conn),
         }
     }
@@ -200,7 +229,7 @@ impl<'a> Retrievable<'a> for Strain {
         match field {
             StrainField::Id(i) => strains.filter(sid.eq(i)).get_results(conn),
             StrainField::Name(n) => strains
-                .filter(sql("name ILIKE  ").bind::<Varchar, _>(n))
+                .filter(sql("name ILIKE  ").bind::<VarChar, _>(n))
                 .get_results(conn),
             StrainField::Species(s) => strains.filter(species.eq(s)).get_results(conn),
         }
@@ -345,5 +374,13 @@ mod tests {
         let conn = establish_connection().unwrap();
         let all = Batch::all(&conn).unwrap();
         assert_ne!(all.len(), 0);
+    }
+
+    #[test]
+    fn batch_filtered_by_strain() {
+        use super::Retrievable;
+        let conn = establish_connection().unwrap();
+        let res = Batch::filter(&conn, BatchField::StrainID(3)).unwrap();
+        assert_eq!(res[0].strain, "Blackwater OG".to_owned());
     }
 }
