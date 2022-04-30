@@ -84,13 +84,13 @@ async fn get_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) ->
 ///
 /// Ex:
 ///     Request:
-///     `$ curl localhost:8008/batches?strain_id=12`
-//#[get("/batches")]
-//async fn get_batches(pool: web::Data<DbPool>, query: web::Query<BatchQuery>) -> impl Responder {
-//let conn = pool.get().expect("Could not get connection.");
-//let stmt = "SELECT * FROM batches WHERE ".to_owned();
-//web::block(move || match query {})
-//}
+///     `$ curl localhost:8008/batches?strain=Fart%20Knocker%20OG`
+#[get("/batches")]
+async fn get_batches(pool: web::Data<DbPool>, query: web::Query<BatchQuery>) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    let stmt = "SELECT * FROM batches WHERE ".to_owned();
+    web::block(move || &query)
+}
 
 #[post("/batches")]
 async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> impl Responder {
