@@ -16,15 +16,15 @@ use dotenv::dotenv;
 use std::env;
 
 #[derive(Debug, Clone)]
-pub enum BatchField {
+pub enum BatchField<'b> {
     Id(i32),
-    Strain(String),
+    Strain(&'b str),
     StrainID(i32),
     HarvestDate(NaiveDate),
     FinalTestDate(NaiveDate),
     PackageDate(NaiveDate),
     GrowerID(i32),
-    Grower(String),
+    Grower(&'b str),
     THCContent(f32),
     CBDContent(f32),
 }
@@ -160,8 +160,8 @@ impl Deletable for Strain {
     }
 }
 
-impl Retrievable<'_, BatchResponse> for Batch {
-    type Field = BatchField;
+impl<'b> Retrievable<'b, BatchResponse> for Batch {
+    type Field = BatchField<'b>;
     fn all(conn: &PgConnection) -> Result<Vec<BatchResponse>, Error> {
         sql_query(
             "SELECT s.name as strain, b.harvest_date, b.final_test_date, b.package_date,
@@ -384,7 +384,7 @@ mod tests {
     fn batch_filtered_by_strain_name() {
         use super::Retrievable;
         let conn = establish_connection().unwrap();
-        let res = Batch::filter(&conn, BatchField::Strain("Blackwater OG".to_string())).unwrap();
+        let res = Batch::filter(&conn, BatchField::Strain("Blackwater OG")).unwrap();
         assert_eq!(res[0].strain, "Blackwater OG");
     }
 
@@ -405,7 +405,7 @@ mod tests {
     #[test]
     fn batch_filtered_by_grower_name() {
         let conn = establish_connection().unwrap();
-        let res = Batch::filter(&conn, BatchField::Grower("Summa".to_owned())).unwrap();
+        let res = Batch::filter(&conn, BatchField::Grower("Summa")).unwrap();
         assert_eq!(res[0].grower, "Summa");
     }
 }
