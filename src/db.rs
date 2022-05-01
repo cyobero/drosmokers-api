@@ -10,7 +10,7 @@ use chrono::NaiveDate;
 use diesel::expression::sql_literal::sql;
 use diesel::pg::PgConnection;
 use diesel::result::Error;
-use diesel::sql_types::{Date, Integer, VarChar};
+use diesel::sql_types::{Date, Integer, VarChar, Varchar};
 use diesel::{sql_query, Connection, ConnectionError, ExpressionMethods, QueryDsl, RunQueryDsl};
 use dotenv::dotenv;
 use std::env;
@@ -182,7 +182,7 @@ impl Retrievable<'_, BatchResponse> for Batch {
                 .bind::<Integer, _>(_sid)
                 .get_results(conn),
 
-            BatchField::Strain(s) => sql_query(stmt + " WHERE s.name = '$1' ")
+            BatchField::Strain(s) => sql_query(stmt + " WHERE s.name = $1 ")
                 .bind::<VarChar, _>(s)
                 .get_results(conn),
 
@@ -190,12 +190,16 @@ impl Retrievable<'_, BatchResponse> for Batch {
                 .bind::<Date, _>(h)
                 .get_results(conn),
 
+            BatchField::FinalTestDate(h) => sql_query(stmt + "WHERE final_test_date = '$1'")
+                .bind::<Date, _>(h)
+                .get_results(conn),
+
             BatchField::GrowerID(g) => sql_query(stmt + "WHERE g.id = $1")
                 .bind::<Integer, _>(g)
                 .get_results(conn),
 
-            BatchField::Grower(gr) => sql_query(stmt + "WHERE g.name = '$1'")
-                .bind::<VarChar, _>(gr)
+            BatchField::Grower(gr) => sql_query(stmt + "WHERE g.name = $1")
+                .bind::<Varchar, _>(gr)
                 .get_results(conn),
 
             _ => Self::all(conn),
@@ -377,7 +381,15 @@ mod tests {
     }
 
     #[test]
-    fn batch_filtered_by_strain() {
+    fn batch_filtered_by_strain_name() {
+        use super::Retrievable;
+        let conn = establish_connection().unwrap();
+        let res = Batch::filter(&conn, BatchField::Strain("Blackwater OG".to_string())).unwrap();
+        assert_eq!(res[0].strain, "Blackwater OG");
+    }
+
+    #[test]
+    fn batch_filtered_by_strain_id() {
         use super::Retrievable;
         let conn = establish_connection().unwrap();
         let res = Batch::filter(&conn, BatchField::StrainID(3)).unwrap();
@@ -385,9 +397,15 @@ mod tests {
     }
 
     #[test]
-    fn batch_filtered_by_growerID() {
+    fn batch_filtered_by_grower_id() {
         let conn = establish_connection().unwrap();
         let res = Batch::filter(&conn, BatchField::GrowerID(3)).unwrap();
+        assert_eq!(res[0].grower, "Summa");
+    }
+    #[test]
+    fn batch_filtered_by_grower_name() {
+        let conn = establish_connection().unwrap();
+        let res = Batch::filter(&conn, BatchField::Grower("Summa".to_owned())).unwrap();
         assert_eq!(res[0].grower, "Summa");
     }
 }
