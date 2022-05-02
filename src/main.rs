@@ -38,7 +38,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
-            .service(get_strains_handler)
+            .service(get_strains_by_id)
             .service(post_new_strain)
             .service(query_strain)
             .service(post_new_batch)

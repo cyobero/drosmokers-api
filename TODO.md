@@ -1,5 +1,6 @@
  TODO
 
+- Implement handler for retrieving/querying batches
 - ~~Implement `filter` for `Batch`~~
 - Create User login/authentication
 - Write doc string for handlers
