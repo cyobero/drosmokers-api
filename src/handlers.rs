@@ -1,9 +1,12 @@
 use super::db::*;
 use super::models::{Batch, Grower, NewBatch, NewGrower, NewStrain, Species, Strain};
+use super::schema::strains::dsl::{id as sid, strains};
 use super::DbPool;
 use actix_web::{get, post, web, HttpResponse, Responder};
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 
 use diesel::sql_query;
+use diesel::sql_types::Integer;
 
 use chrono::NaiveDate;
 
@@ -12,7 +15,6 @@ use serde_json::json;
 
 #[derive(Debug, Deserialize, Clone)]
 struct StrainQuery {
-    id: Option<i32>,
     name: Option<String>,
     species: Option<Species>,
 }
@@ -23,17 +25,6 @@ struct GrowerQuery {
     name: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
-struct BatchQuery {
-    id: Option<i32>,
-    harvest_date: Option<NaiveDate>,
-    final_test_date: Option<NaiveDate>,
-    package_date: Option<NaiveDate>,
-    grower_id: Option<i32>,
-    thc_content: Option<f32>,
-    cbd_content: Option<f32>,
-}
-
 /// Make a POST request to create a new `Grower` object.
 ///
 /// EX:
@@ -42,7 +33,7 @@ struct BatchQuery {
 ///      $ -H "Content-Type: application/json" \
 ///      $ -d '{"name": "Tegridy"}'
 ///      $ localhost:8008/growers`
-///     
+///
 ///     Response:
 ///     `{"200": {"id":30, "name":"High Guys"}}`
 #[post("/growers")]
@@ -84,11 +75,11 @@ async fn get_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) ->
 ///
 /// Ex:
 ///     Request:
-///     `$ curl localhost:8008/batches?strain=Fart%20Knocker%20OG&grower=Tegridy%20Farms`
+///     `$ curl localhost:8008/batches?strain_id=15&grower_id=3`
 //#[get("/batches")]
 //async fn get_batches(pool: web::Data<DbPool>, query: web::Query<BatchQuery>) -> impl Responder {
 //let conn = pool.get().expect("Could not get connection.");
-//web::block(move || )
+//web::block(move || match query.0 {})
 //}
 
 #[post("/batches")]
@@ -104,10 +95,9 @@ async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> i
 #[get("/strains")]
 async fn query_strain(pool: web::Data<DbPool>, query: web::Query<StrainQuery>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || match (&query.id, &query.name, &query.species) {
-        (Some(i), _, _) => Strain::filter(&conn, StrainField::Id(*i)),
-        (_, Some(n), _) => Strain::filter(&conn, StrainField::Name(&&**n)),
-        (_, _, Some(s)) => Strain::filter(&conn, StrainField::Species(s.clone())),
+    web::block(move || match (&query.name, &query.species) {
+        (Some(n), None) => Strain::filter(&conn, StrainField::Name(&&**n)),
+        (None, Some(s)) => Strain::filter(&conn, StrainField::Species(s.clone())),
         _ => Strain::all(&conn),
     })
     .await
@@ -128,11 +118,15 @@ async fn post_new_strain(pool: web::Data<DbPool>, data: web::Json<NewStrain>) ->
         })
 }
 
-#[get("/strains/")]
-async fn get_strains_handler(pool: web::Data<DbPool>) -> impl Responder {
+#[get("/strains/{id}")]
+async fn get_strains_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
     let conn = pool.get().expect("Couldn't get connection.");
-    web::block(move || Strain::all(&conn))
-        .await
-        .map(|strains| web::Json(strains))
-        .map_err(|e| HttpResponse::InternalServerError().body(e.to_string()))
+    web::block(move || {
+        sql_query("SELECT * FROM strains WHERE id = $1")
+            .bind::<Integer, _>(path.0)
+            .load::<Strain>(&conn)
+    })
+    .await
+    .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
+    .map_err(|e| HttpResponse::NotFound().json(json!({"404": e.to_string() })))
 }
