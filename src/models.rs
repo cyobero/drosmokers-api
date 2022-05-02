@@ -37,7 +37,10 @@ pub struct NewBatch {
     pub cbd_content: f32,
 }
 
+<<<<<<< HEAD
 /// Struct used to create new `Grower` object
+=======
+>>>>>>> c10baea (create mgiration for Terpenes)
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name = "growers"]
 pub struct NewGrower {
