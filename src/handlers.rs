@@ -103,8 +103,8 @@ async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> i
     let batch = data.into_inner();
     web::block(move || batch.create(&conn))
         .await
-        .map(|b| HttpResponse::Ok().json(json!({"status code": 200, "data": b})))
-        .map_err(|e| HttpResponse::InternalServerError().body(e.to_string()))
+        .map(|b| HttpResponse::Ok().json(json!({ "200": b })))
+        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
 }
 
 #[get("/strains")]
