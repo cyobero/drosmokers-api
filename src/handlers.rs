@@ -1,5 +1,6 @@
 use super::db::*;
 use super::models::{Batch, Grower, NewBatch, NewGrower, NewStrain, Species, Strain};
+use super::schema::growers::dsl::{growers, id as gid};
 use super::schema::strains::dsl::{id as sid, strains};
 use super::DbPool;
 use actix_web::{get, post, web, HttpResponse, Responder};
@@ -21,8 +22,18 @@ struct StrainQuery {
 
 #[derive(Debug, Deserialize, Clone)]
 struct GrowerQuery {
-    id: Option<i32>,
     name: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct BatchQuery {
+    strain_id: Option<i32>,
+    grower_id: Option<i32>,
+    harvest_date: Option<NaiveDate>,
+    final_test_date: Option<NaiveDate>,
+    package_date: Option<NaiveDate>,
+    thc_content: Option<f32>,
+    cbd_content: Option<f32>,
 }
 
 /// Make a POST request to create a new `Grower` object.
@@ -50,7 +61,6 @@ async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) ->
 }
 
 /// Retrieve a list of all growers or a subset of them that match a given query.
-/// Please select one field to query by passing in either `id` or `name` but not both.
 ///
 /// Ex:
 ///     Request:
@@ -59,16 +69,25 @@ async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) ->
 ///     Response:
 ///     `$ {"200":[{"id":6,"name":"Tegridy Farms"}]}`
 #[get("/growers")]
-async fn get_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) -> impl Responder {
+async fn query_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || match (&query.id, &query.name) {
-        (Some(i), _) => Grower::filter(&conn, GrowerField::Id(*i)),
-        (_, Some(n)) => Grower::filter(&conn, GrowerField::Name(&&**n)),
-        (None, None) => Grower::all(&conn),
+    web::block(move || match &query.name {
+        Some(n) => Grower::filter(&conn, GrowerField::Name(&&**n)),
+        None => Grower::all(&conn),
     })
     .await
     .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
     .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string()})))
+}
+
+/// Get grower by {id}
+#[get("/growers/{id}")]
+async fn get_grower_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || growers.find(path.0).first::<Grower>(&conn))
+        .await
+        .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
+        .map_err(|e| HttpResponse::InternalServerError().json(json!({"404": e.to_string() })))
 }
 
 /// Return an array of batches that match a given query.
@@ -79,7 +98,6 @@ async fn get_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) ->
 //#[get("/batches")]
 //async fn get_batches(pool: web::Data<DbPool>, query: web::Query<BatchQuery>) -> impl Responder {
 //let conn = pool.get().expect("Could not get connection.");
-//web::block(move || match query.0 {})
 //}
 
 #[post("/batches")]
@@ -121,12 +139,8 @@ async fn post_new_strain(pool: web::Data<DbPool>, data: web::Json<NewStrain>) ->
 #[get("/strains/{id}")]
 async fn get_strains_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
     let conn = pool.get().expect("Couldn't get connection.");
-    web::block(move || {
-        sql_query("SELECT * FROM strains WHERE id = $1")
-            .bind::<Integer, _>(path.0)
-            .load::<Strain>(&conn)
-    })
-    .await
-    .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
-    .map_err(|e| HttpResponse::NotFound().json(json!({"404": e.to_string() })))
+    web::block(move || strains.find(path.0).first::<Strain>(&conn))
+        .await
+        .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
+        .map_err(|e| HttpResponse::NotFound().json(json!({"404": e.to_string() })))
 }
