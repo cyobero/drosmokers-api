@@ -53,11 +53,8 @@ async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) ->
     let conn = pool.get().expect("Could not get connection.");
     web::block(move || grower.create(&conn))
         .await
-        .map(|g| HttpResponse::Ok().json(json!({"status code": 200, "data": g})))
-        .map_err(|e| {
-            HttpResponse::InternalServerError()
-                .json(json!({"status code": 500, "message": e.to_string()}))
-        })
+        .map(|g| HttpResponse::Ok().json(json!({ "200": g })))
+        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
 }
 
 /// Retrieve a list of all growers or a subset of them that match a given query.
