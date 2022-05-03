@@ -92,10 +92,14 @@ async fn get_grower_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl
 /// Ex:
 ///     Request:
 ///     `$ curl localhost:8008/batches?strain_id=15&grower_id=3`
-//#[get("/batches")]
-//async fn get_batches(pool: web::Data<DbPool>, query: web::Query<BatchQuery>) -> impl Responder {
-//let conn = pool.get().expect("Could not get connection.");
-//}
+#[get("/batches")]
+async fn get_all_batches(pool: web::Data<DbPool>) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || Batch::all(&conn))
+        .await
+        .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
+        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
+}
 
 #[post("/batches")]
 async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> impl Responder {
