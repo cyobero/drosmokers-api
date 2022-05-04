@@ -32,8 +32,8 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Could not create pool.");
 
-    let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8008);
-    println!("Serving at {:?}", socket);
+    let addrress = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8008);
+    println!("Serving at {:?}", addrress);
 
     HttpServer::new(move || {
         App::new()
@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_new_grower)
             .service(get_all_batches)
     })
-    .bind(socket)?
+    .bind(addrress)?
     .run()
     .await
 }
