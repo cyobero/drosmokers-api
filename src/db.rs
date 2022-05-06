@@ -5,6 +5,7 @@ use super::schema::batches::dsl::{
 };
 use super::schema::growers::dsl::{growers, id as gid, name as grower_name};
 use super::schema::strains::dsl::{id as sid, name, species, strains};
+use super::schema::terpenes::dsl::*;
 
 use chrono::NaiveDate;
 use diesel::expression::sql_literal::sql;
@@ -116,6 +117,13 @@ pub trait Retrievable<'a, Output = Self, C = PgConnection, E = Error> {
     /// assert_eq!(indicas[2].species, Species::Indica);
     /// assert_eq!(cake[0].name, "Wedding Cake");
     fn filter(conn: &C, field: Self::Field) -> Result<Vec<Output>, E>;
+}
+
+impl Creatable for NewTerpenes {
+    type Output = Terpenes;
+    fn create(&self, conn: &PgConnection) -> Result<Terpenes, Error> {
+        diesel::insert_into(terpenes).values(self).get_result(conn)
+    }
 }
 
 impl Creatable for NewGrower {

@@ -1,5 +1,6 @@
  TODO
 
+- Implement db traits for `Terpenes`
 - ~~Implement handler for retrieving/querying batches~~ (2022-05-02)
 - ~~Implement `filter` for `Batch`~~
 - Create User login/authentication
@@ -11,7 +12,7 @@
 - Write API doc
 - ~~Make Strain `name` field `UNIQUE`~~
 - ~~Make Grower `name` field `UNIQUE`~~ (2022-04-20)
-- Create Response model for GET /batches
+- ~~Create Response model for GET /batches~~
 - ~~Create handler for creating new Grower~~ (2022-04-20)
 - ~~Create handler for retrieving growers~~ (2022-04-20)
 - ~~Implement traits for Grower/NewGrower~~ (2022-04-20)
