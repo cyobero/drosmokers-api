@@ -1,5 +1,5 @@
  TODO
-- Create `/strains/{strain_id}/batches` path and handler
+- ~~Create `/strains/{strain_id}/batches` path and handler~~ (2022-05-07)
 - Create `/growers/{grower_id}/batches` path and handler
 - Implement db traits for `Terpenes`
 - ~~Implement handler for retrieving/querying batches~~ (2022-05-02)

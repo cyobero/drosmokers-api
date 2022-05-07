@@ -46,7 +46,7 @@ struct BatchQuery {
 ///      $ localhost:8008/growers`
 ///
 ///     Response:
-///     `{"200": {"id":30, "name":"High Guys"}}`
+///     `{"201": {"id":30, "name":"High Guys"}}`
 #[post("/growers")]
 async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) -> impl Responder {
     let grower = data.into_inner();
@@ -65,7 +65,7 @@ async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) ->
 ///     `$ curl localhost:8008/growers?name=Tegridy%20Farms`
 ///
 ///     Response:
-///     `$ {"200":[{"id":6,"name":"Tegridy Farms"}]}`
+///     `$ {"200":[{"id":6,"name":"Tegridy Farms"}, {"id":42,"name":"Stuco"}]}`
 #[get("/growers")]
 async fn query_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");

@@ -190,7 +190,7 @@ impl<'b> Retrievable<'b, BatchResponse> for Batch {
                 .bind::<Integer, _>(_sid)
                 .get_results(conn),
 
-            BatchField::Strain(s) => sql_query(stmt + " WHERE s.name = $1 ")
+            BatchField::Strain(s) => sql_query(stmt + " WHERE s.name ILIKE $1 ")
                 .bind::<VarChar, _>(s)
                 .get_results(conn),
 
@@ -198,7 +198,7 @@ impl<'b> Retrievable<'b, BatchResponse> for Batch {
                 .bind::<Date, _>(h)
                 .get_results(conn),
 
-            BatchField::FinalTestDate(h) => sql_query(stmt + "WHERE final_test_date = '$1'")
+            BatchField::FinalTestDate(h) => sql_query(stmt + "WHERE final_test_date = $1")
                 .bind::<Date, _>(h)
                 .get_results(conn),
 
@@ -206,7 +206,7 @@ impl<'b> Retrievable<'b, BatchResponse> for Batch {
                 .bind::<Integer, _>(g)
                 .get_results(conn),
 
-            BatchField::Grower(gr) => sql_query(stmt + "WHERE g.name = $1")
+            BatchField::Grower(gr) => sql_query(stmt + "WHERE g.name ILIKE $1 ")
                 .bind::<Varchar, _>(gr)
                 .get_results(conn),
 
