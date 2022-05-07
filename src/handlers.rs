@@ -43,9 +43,12 @@ async fn get_batches_by_grower_id(pool: web::Data<DbPool>, path: web::Path<i32>)
         .await
         .map(|res| match res.len() {
             0 => HttpResponse::NotFound().json(json!({"404": "No Batches Found"})),
-            _ => HttpResponse::Ok().json(json!({ "200": res })),
+            _ => HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })),
         })
-        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
+        .map_err(|e| {
+            HttpResponse::InternalServerError()
+                .json(json!({"message": e.to_string(), "status code": 500 }))
+        })
 }
 
 /// Make a POST request to create a new `Grower` object.
@@ -65,8 +68,11 @@ async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) ->
     let conn = pool.get().expect("Could not get connection.");
     web::block(move || grower.create(&conn))
         .await
-        .map(|g| HttpResponse::Ok().json(json!({ "201": g })))
-        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
+        .map(|g| HttpResponse::Ok().json(json!({ "data": g, "status code": 201 })))
+        .map_err(|e| {
+            HttpResponse::InternalServerError()
+                .json(json!({"message": e.to_string(), "status code": 500 }))
+        })
 }
 
 /// Retrieve a list of all growers or a subset of them that match a given query.
@@ -87,10 +93,14 @@ async fn query_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) 
     })
     .await
     .map(|res| match res.len() {
-        0 => HttpResponse::NotFound().json(json!({"404": "No Growers Found"})),
-        _ => HttpResponse::Ok().json(json!({ "200": res })),
+        0 => HttpResponse::NotFound()
+            .json(json!({"message": "No Growers Found", "status code": 404 })),
+        _ => HttpResponse::Ok().json(json!({ "data": res, "Status Code": 200 })),
     })
-    .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string()})))
+    .map_err(|e| {
+        HttpResponse::InternalServerError()
+            .json(json!({"message": e.to_string(), "Status Code": 500 }))
+    })
 }
 
 /// Get grower by {id}
@@ -99,8 +109,10 @@ async fn get_grower_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl
     let conn = pool.get().expect("Could not get connection.");
     web::block(move || growers.find(path.0).first::<Grower>(&conn))
         .await
-        .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
-        .map_err(|e| HttpResponse::InternalServerError().json(json!({"404": e.to_string() })))
+        .map(|res| HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })))
+        .map_err(|e| {
+            HttpResponse::NotFound().json(json!({"message": e.to_string(), "status code": 404 }))
+        })
 }
 
 /// Return an array of batches that match a given query.
@@ -118,8 +130,11 @@ async fn get_all_batches(pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
     web::block(move || Batch::all(&conn))
         .await
-        .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
-        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
+        .map(|res| HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })))
+        .map_err(|e| {
+            HttpResponse::InternalServerError()
+                .json(json!({"message": e.to_string(), "status code": 500 }))
+        })
 }
 
 #[post("/batches")]
@@ -128,8 +143,11 @@ async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> i
     let batch = data.into_inner();
     web::block(move || batch.create(&conn))
         .await
-        .map(|b| HttpResponse::Ok().json(json!({ "200": b })))
-        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
+        .map(|b| HttpResponse::Ok().json(json!({ "data": b, "status code": 201 })))
+        .map_err(|e| {
+            HttpResponse::InternalServerError()
+                .json(json!({"message": e.to_string(), "status code": 500 }))
+        })
 }
 
 #[get("/strains")]
@@ -141,8 +159,11 @@ async fn query_strain(pool: web::Data<DbPool>, query: web::Query<StrainQuery>) -
         _ => Strain::all(&conn),
     })
     .await
-    .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
-    .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string()})))
+    .map(|res| HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })))
+    .map_err(|e| {
+        HttpResponse::InternalServerError()
+            .json(json!({"message": e.to_string(), "status code": 500 }))
+    })
 }
 
 #[post("/strains")]
@@ -151,7 +172,7 @@ async fn post_new_strain(pool: web::Data<DbPool>, data: web::Json<NewStrain>) ->
     let strain = data.into_inner();
     web::block(move || strain.create(&conn))
         .await
-        .map(|s| HttpResponse::Ok().json(json!({ "201": s })))
+        .map(|s| HttpResponse::Ok().json(json!({ "data": s, "status code": 201 })))
         .map_err(|e| {
             HttpResponse::InternalServerError()
                 .json(json!({"status code": 500, "message": e.to_string()}))
@@ -167,8 +188,10 @@ async fn get_strains_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> imp
             .load::<Strain>(&conn)
     })
     .await
-    .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
-    .map_err(|e| HttpResponse::NotFound().json(json!({"404": e.to_string() })))
+    .map(|res| HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })))
+    .map_err(|e| {
+        HttpResponse::NotFound().json(json!({"message": e.to_string(), "status code": 404 }))
+    })
 }
 
 #[get("/strains/{strain_id}/batches")]
@@ -178,9 +201,13 @@ async fn get_batches_by_strain_id(pool: web::Data<DbPool>, path: web::Path<i32>)
         .await
         .map(|res| match res.len() {
             0 => HttpResponse::NotFound().json(json!({
-                "404": "No batches found"
+                "status code": 404,
+                "message": "NotFound"
             })),
-            _ => HttpResponse::Ok().json(json!({ "200": res })),
+            _ => HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })),
         })
-        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
+        .map_err(|e| {
+            HttpResponse::InternalServerError()
+                .json(json!({"message": e.to_string(), "status code": 500 }))
+        })
 }
