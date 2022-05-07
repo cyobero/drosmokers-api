@@ -74,7 +74,10 @@ async fn query_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) 
         None => Grower::all(&conn),
     })
     .await
-    .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
+    .map(|res| match res.len() {
+        0 => HttpResponse::NotFound().json(json!({"404": "No Growers found"})),
+        _ => HttpResponse::Ok().json(json!({ "200": res })),
+    })
     .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string()})))
 }
 

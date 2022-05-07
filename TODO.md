@@ -1,4 +1,5 @@
  TODO
+- Create `Inventory` model
 - ~~Create `/strains/{strain_id}/batches` path and handler~~ (2022-05-07)
 - Create `/growers/{grower_id}/batches` path and handler
 - Implement db traits for `Terpenes`
