@@ -47,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_new_grower)
             .service(get_all_batches)
             .service(get_batches_by_strain_id)
+            .service(get_batches_by_grower_id)
     })
     .bind(addrress)?
     .run()

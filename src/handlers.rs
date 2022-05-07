@@ -36,6 +36,18 @@ struct BatchQuery {
     cbd_content: Option<f32>,
 }
 
+#[get("/growers/{id}/batches")]
+async fn get_batches_by_grower_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || Batch::filter(&conn, BatchField::GrowerID(path.0)))
+        .await
+        .map(|res| match res.len() {
+            0 => HttpResponse::NotFound().json(json!({"404": "No Batches Found"})),
+            _ => HttpResponse::Ok().json(json!({ "200": res })),
+        })
+        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
+}
+
 /// Make a POST request to create a new `Grower` object.
 ///
 /// EX:
@@ -75,7 +87,7 @@ async fn query_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) 
     })
     .await
     .map(|res| match res.len() {
-        0 => HttpResponse::NotFound().json(json!({"404": "No Growers found"})),
+        0 => HttpResponse::NotFound().json(json!({"404": "No Growers Found"})),
         _ => HttpResponse::Ok().json(json!({ "200": res })),
     })
     .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string()})))
