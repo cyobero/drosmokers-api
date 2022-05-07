@@ -31,15 +31,15 @@ pub enum BatchField<'b> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum GrowerField<'a, I = i32, N = &'a str> {
+pub enum GrowerField<'g, I = i32, N = &'g str> {
     Id(I),
-    Name(&'a N),
+    Name(&'g N),
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum StrainField<'a, I = i32, N = &'a str, S = Species> {
+pub enum StrainField<'s, I = i32, N = &'s str, S = Species> {
     Id(I),
-    Name(&'a N),
+    Name(&'s N),
     Species(S),
 }
 

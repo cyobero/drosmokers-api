@@ -1,5 +1,6 @@
  TODO
-
+- Create `/strains/{strain_id}/batches` path and handler
+- Create `/growers/{grower_id}/batches` path and handler
 - Implement db traits for `Terpenes`
 - ~~Implement handler for retrieving/querying batches~~ (2022-05-02)
 - ~~Implement `filter` for `Batch`~~

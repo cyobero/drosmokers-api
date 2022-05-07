@@ -53,7 +53,7 @@ async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) ->
     let conn = pool.get().expect("Could not get connection.");
     web::block(move || grower.create(&conn))
         .await
-        .map(|g| HttpResponse::Ok().json(json!({ "200": g })))
+        .map(|g| HttpResponse::Ok().json(json!({ "201": g })))
         .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
 }
 
@@ -136,7 +136,7 @@ async fn post_new_strain(pool: web::Data<DbPool>, data: web::Json<NewStrain>) ->
     let strain = data.into_inner();
     web::block(move || strain.create(&conn))
         .await
-        .map(|s| HttpResponse::Ok().json(json!({"status code": 200, "data": s})))
+        .map(|s| HttpResponse::Ok().json(json!({ "201": s })))
         .map_err(|e| {
             HttpResponse::InternalServerError()
                 .json(json!({"status code": 500, "message": e.to_string()}))
@@ -154,4 +154,21 @@ async fn get_strains_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> imp
     .await
     .map(|res| HttpResponse::Ok().json(json!({ "200": res })))
     .map_err(|e| HttpResponse::NotFound().json(json!({"404": e.to_string() })))
+}
+
+#[get("/strains/{id}/batches")]
+async fn get_batches_by_strain_id(
+    pool: web::Data<DbPool>,
+    path: web::Path<(i32,)>,
+) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || Batch::filter(&conn, BatchField::StrainID(path.0 .0)))
+        .await
+        .map(|res| match res.len() {
+            0 => HttpResponse::NotFound().json(json!({
+                "404": format!("No batches found for strain id = {}", path.0 .0)
+            })),
+            _ => HttpResponse::Ok().json(json!({ "200": res })),
+        })
+        .map_err(|e| HttpResponse::InternalServerError().json(json!({"500": e.to_string() })))
 }
