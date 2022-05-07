@@ -182,16 +182,12 @@ async fn post_new_strain(pool: web::Data<DbPool>, data: web::Json<NewStrain>) ->
 #[get("/strains/{id}")]
 async fn get_strains_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
     let conn = pool.get().expect("Couldn't get connection.");
-    web::block(move || {
-        sql_query("SELECT * FROM strains WHERE id = $1")
-            .bind::<Integer, _>(path.0)
-            .load::<Strain>(&conn)
-    })
-    .await
-    .map(|res| HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })))
-    .map_err(|e| {
-        HttpResponse::NotFound().json(json!({"message": e.to_string(), "status code": 404 }))
-    })
+    web::block(move || strains.find(path.0).first::<Strain>(&conn))
+        .await
+        .map(|res| HttpResponse::Ok().json(json!({ "data": res, "status code": 200 })))
+        .map_err(|e| {
+            HttpResponse::NotFound().json(json!({"message": e.to_string(), "status code": 404 }))
+        })
 }
 
 #[get("/strains/{strain_id}/batches")]
