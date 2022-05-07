@@ -186,7 +186,7 @@ impl<'b> Retrievable<'b, BatchResponse> for Batch {
             .to_owned();
 
         match field {
-            BatchField::StrainID(_sid) => sql_query(stmt + " WHERE b.strain_id = 3 ")
+            BatchField::StrainID(_sid) => sql_query(stmt + " WHERE b.strain_id = $1 ")
                 .bind::<Integer, _>(_sid)
                 .get_results(conn),
 

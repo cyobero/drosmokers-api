@@ -156,17 +156,14 @@ async fn get_strains_by_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> imp
     .map_err(|e| HttpResponse::NotFound().json(json!({"404": e.to_string() })))
 }
 
-#[get("/strains/{id}/batches")]
-async fn get_batches_by_strain_id(
-    pool: web::Data<DbPool>,
-    path: web::Path<(i32,)>,
-) -> impl Responder {
+#[get("/strains/{strain_id}/batches")]
+async fn get_batches_by_strain_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || Batch::filter(&conn, BatchField::StrainID(path.0 .0)))
+    web::block(move || Batch::filter(&conn, BatchField::StrainID(path.0)))
         .await
         .map(|res| match res.len() {
             0 => HttpResponse::NotFound().json(json!({
-                "404": format!("No batches found for strain id = {}", path.0 .0)
+                "404": "No batches found"
             })),
             _ => HttpResponse::Ok().json(json!({ "200": res })),
         })
