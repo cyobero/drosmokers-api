@@ -25,17 +25,6 @@ struct GrowerQuery {
     name: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
-struct BatchQuery {
-    strain_id: Option<i32>,
-    grower_id: Option<i32>,
-    harvest_date: Option<NaiveDate>,
-    final_test_date: Option<NaiveDate>,
-    package_date: Option<NaiveDate>,
-    thc_content: Option<f32>,
-    cbd_content: Option<f32>,
-}
-
 #[get("/growers/{id}/batches")]
 async fn get_batches_by_grower_id(pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
