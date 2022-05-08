@@ -12,11 +12,13 @@ use diesel::expression::sql_literal::sql;
 use diesel::pg::PgConnection;
 use diesel::result::Error;
 use diesel::sql_types::{Date, Integer, VarChar, Varchar};
-use diesel::{sql_query, Connection, ConnectionError, ExpressionMethods, QueryDsl, RunQueryDsl};
+use diesel::{
+    sql_query, Connection, ConnectionError, ExpressionMethods, QueryDsl, Queryable, RunQueryDsl,
+};
 use dotenv::dotenv;
 use std::env;
 
-#[derive(Debug, Clone)]
+#[derive(Copy, Debug, Clone)]
 pub enum BatchField<'b> {
     Id(i32),
     Strain(&'b str),
@@ -31,15 +33,15 @@ pub enum BatchField<'b> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum GrowerField<'g, I = i32, N = &'g str> {
+pub enum GrowerField<I = i32, N = String> {
     Id(I),
-    Name(&'g N),
+    Name(N),
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum StrainField<'s, I = i32, N = &'s str, S = Species> {
+pub enum StrainField<I = i32, N = String, S = Species> {
     Id(I),
-    Name(&'s N),
+    Name(N),
     Species(S),
 }
 
@@ -47,7 +49,7 @@ pub enum StrainField<'s, I = i32, N = &'s str, S = Species> {
 /// Example:
 /// let conn = establish_connection();
 /// assert!(conn.is_ok());
-pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
+fn establish_connection() -> Result<PgConnection, ConnectionError> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     PgConnection::establish(&database_url)
@@ -116,7 +118,7 @@ pub trait Retrievable<'a, Output = Self, C = PgConnection, E = Error> {
     /// assert_eq!(filtered_by_id[0].id, 3);
     /// assert_eq!(indicas[2].species, Species::Indica);
     /// assert_eq!(cake[0].name, "Wedding Cake");
-    fn filter(conn: &C, field: Self::Field) -> Result<Vec<Output>, E>;
+    fn filter(conn: &C, field: Self::Field) -> Result<Vec<Output>, Error>;
 }
 
 impl Creatable for NewTerpenes {
@@ -194,7 +196,7 @@ impl<'b> Retrievable<'b, BatchResponse> for Batch {
                 .bind::<VarChar, _>(s)
                 .get_results(conn),
 
-            BatchField::HarvestDate(h) => sql_query(stmt + "WHERE harvest_date = '$1'")
+            BatchField::HarvestDate(h) => sql_query(stmt + "WHERE harvest_date = $1")
                 .bind::<Date, _>(h)
                 .get_results(conn),
 
@@ -202,11 +204,15 @@ impl<'b> Retrievable<'b, BatchResponse> for Batch {
                 .bind::<Date, _>(h)
                 .get_results(conn),
 
+            BatchField::PackageDate(p) => sql_query(stmt + "WHERE package_date = $1")
+                .bind::<Date, _>(p)
+                .get_results(conn),
+
             BatchField::GrowerID(g) => sql_query(stmt + "WHERE g.id = $1")
                 .bind::<Integer, _>(g)
                 .get_results(conn),
 
-            BatchField::Grower(gr) => sql_query(stmt + "WHERE g.name ILIKE $1 ")
+            BatchField::Grower(gr) => sql_query(stmt + r"WHERE g.name ILIKE $1 ")
                 .bind::<Varchar, _>(gr)
                 .get_results(conn),
 
@@ -215,8 +221,8 @@ impl<'b> Retrievable<'b, BatchResponse> for Batch {
     }
 }
 
-impl<'a> Retrievable<'a> for Grower {
-    type Field = GrowerField<'a>;
+impl Retrievable<'_> for Grower {
+    type Field = GrowerField;
     fn all(conn: &PgConnection) -> Result<Vec<Grower>, Error> {
         growers.load(conn)
     }
@@ -231,8 +237,8 @@ impl<'a> Retrievable<'a> for Grower {
     }
 }
 
-impl<'a> Retrievable<'a> for Strain {
-    type Field = StrainField<'a>;
+impl Retrievable<'_> for Strain {
+    type Field = StrainField;
     fn all(conn: &PgConnection) -> Result<Vec<Strain>, Error> {
         strains.load(conn)
     }
@@ -319,7 +325,7 @@ mod tests {
     fn strain_filtered_by_name() {
         use super::StrainField;
         let conn = establish_connection().unwrap();
-        let res = Strain::filter(&conn, StrainField::Name(&"gaylord oG")).unwrap();
+        let res = Strain::filter(&conn, StrainField::Name("gaylord OG".to_string())).unwrap();
         assert_eq!(res[0].name, "Gaylord OG");
     }
 
@@ -368,7 +374,8 @@ mod tests {
     fn grower_retrieved_by_name() {
         use super::Retrievable;
         let conn = establish_connection().unwrap();
-        let tegridy = Grower::filter(&conn, GrowerField::Name(&"Tegridy Farms")).unwrap();
+        let tegridy =
+            Grower::filter(&conn, GrowerField::Name("Tegridy Farms".to_string())).unwrap();
         assert_eq!(tegridy[0].name, "Tegridy Farms");
     }
 
@@ -415,5 +422,16 @@ mod tests {
         let conn = establish_connection().unwrap();
         let res = Batch::filter(&conn, BatchField::Grower("Summa")).unwrap();
         assert_eq!(res[0].grower, "Summa");
+    }
+
+    #[test]
+    fn batch_filtered_by_date() {
+        let conn = establish_connection().unwrap();
+        let res = Batch::filter(
+            &conn,
+            BatchField::HarvestDate(NaiveDate::from_ymd(2022, 1, 10)),
+        )
+        .unwrap();
+        assert_eq!(res[0].harvest_date, Some(NaiveDate::from_ymd(2022, 1, 10)));
     }
 }

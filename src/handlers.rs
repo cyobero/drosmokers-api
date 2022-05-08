@@ -76,8 +76,8 @@ async fn post_new_grower(pool: web::Data<DbPool>, data: web::Json<NewGrower>) ->
 #[get("/growers")]
 async fn query_growers(pool: web::Data<DbPool>, query: web::Query<GrowerQuery>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || match &query.name {
-        Some(n) => Grower::filter(&conn, GrowerField::Name(&&**n)),
+    web::block(move || match query.0.name {
+        Some(n) => Grower::filter(&conn, GrowerField::Name(n)),
         None => Grower::all(&conn),
     })
     .await
@@ -142,8 +142,8 @@ async fn post_new_batch(pool: web::Data<DbPool>, data: web::Json<NewBatch>) -> i
 #[get("/strains")]
 async fn query_strain(pool: web::Data<DbPool>, query: web::Query<StrainQuery>) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || match (&query.name, &query.species) {
-        (Some(n), None) => Strain::filter(&conn, StrainField::Name(&&**n)),
+    web::block(move || match (query.0.name, query.0.species) {
+        (Some(n), None) => Strain::filter(&conn, StrainField::Name(n)),
         (None, Some(s)) => Strain::filter(&conn, StrainField::Species(s.clone())),
         _ => Strain::all(&conn),
     })
